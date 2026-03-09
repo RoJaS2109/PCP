@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gestión Académica — CFP N° 401 · Sheets</title>
+<title>Gestión Académica · FP</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23f0a500'>⚡</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -305,7 +305,7 @@ tr:last-child td { border-bottom: none; }
 <div class="token-screen" id="token-screen">
   <div class="token-box">
     <div class="bolt">⚡</div>
-    <h2>CFP N° 401 · Gestión Académica</h2>
+    <h2>Gestión Académica · FP</h2>
     <p>Ingresá tu token para acceder como instructor.<br>O entrá como <strong>visor</strong> para solo consultar datos.</p>
     <input type="password" id="token-input" placeholder="Token de acceso..." onkeydown="if(event.key==='Enter')tryLogin()">
     <div class="token-error" id="token-error">Token incorrecto. Intentá de nuevo.</div>
@@ -325,8 +325,8 @@ tr:last-child td { border-bottom: none; }
 <aside class="sidebar" id="sidebar">
   <div class="sidebar-logo">
     <div class="bolt">⚡</div>
-    <h2>CFP N° 401</h2>
-    <span>Gestión Académica 2026</span>
+    <h2>Gestión Académica · FP</h2>
+    <span>CFP N° 401 · 2026</span>
   </div>
   <nav class="nav">
     <div id="conn-bar" class="conn-bar loading">
@@ -968,12 +968,12 @@ function renderDashboard() {
   document.getElementById('alertas-list').innerHTML = alertHTML || '<div class="empty" style="padding:20px">✅ Sin alertas activas</div>';
 
   // Notas distribución
-  const dist = {100:0, '80-99':0, '70-79':0, '<70':0};
-  notas.forEach(n=>{ if(n===100)dist[100]++; else if(n>=80)dist['80-99']++; else if(n>=70)dist['70-79']++; else dist['<70']++; });
-  const distColors = {100:'var(--green)','80-99':'var(--teal)','70-79':'var(--orange)','<70':'var(--red)'};
+  const dist = {'95-100':0, '80-94':0, '70-79':0, '<70':0};
+  notas.forEach(n=>{ if(n>=95)dist['95-100']++; else if(n>=80)dist['80-94']++; else if(n>=70)dist['70-79']++; else dist['<70']++; });
+  const distColors = {'95-100':'var(--green)','80-94':'var(--teal)','70-79':'var(--orange)','<70':'var(--red)'};
   document.getElementById('notas-dist').innerHTML = Object.entries(dist).map(([k,v])=>`
     <div class="bar-row">
-      <div class="bar-label">${k==='100'?'100 pts':k==='80-99'?'80–99 pts':k==='70-79'?'70–79 pts':'< 70 pts'}</div>
+      <div class="bar-label">${k==='95-100'?'95–100 pts':k==='80-94'?'80–94 pts':k==='70-79'?'70–79 pts':'< 70 pts'}</div>
       <div class="bar-track"><div class="bar-fill" style="width:${notas.length?v/notas.length*100:0}%;background:${distColors[k]}"></div></div>
       <div class="bar-val">${v}</div>
     </div>`).join('');
