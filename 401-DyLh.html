@@ -356,6 +356,21 @@ tr:last-child td { border-bottom: none; }
       <button class="nav-btn" onclick="exportarJSON()"><span class="icon">⬇️</span>Exportar backup</button>
       <button class="nav-btn" onclick="recargarDesdeSheets()"><span class="icon">🔄</span>Recargar Sheets</button>
     </div>
+    <!-- IMPRIMIR: visible para instructor; para viewer está comentado hasta habilitarlo -->
+    <div class="nav-group" id="nav-print-instructor">
+      <div class="nav-label">Reportes</div>
+      <button class="nav-btn" onclick="abrirVentanaImpresion()" style="color:#f0a500;font-weight:600">
+        <span class="icon">🖨️</span>Imprimir / PDF
+      </button>
+    </div>
+    <!--
+    <div class="nav-group" id="nav-print-viewer" style="display:none">
+      <div class="nav-label">Reportes</div>
+      <button class="nav-btn" onclick="abrirVentanaImpresion()" style="color:#f0a500;font-weight:600">
+        <span class="icon">🖨️</span>Imprimir / PDF
+      </button>
+    </div>
+    -->
   </nav>
   <div class="sidebar-footer">
     <p>⚡ Electricidad en Inmuebles</p>
@@ -1575,6 +1590,280 @@ async function recargarDesdeSheets() {
   await loadAllData();
   renderDashboard();
   toast('Datos recargados desde Sheets ✓', 'success');
+}
+
+// ════════════════════════════════════════════════════════
+// IMPRIMIR / GENERAR PDF
+// ════════════════════════════════════════════════════════
+function abrirVentanaImpresion() {
+  const c = DB.curso;
+  const hoy = new Date().toLocaleDateString('es-AR', { day:'2-digit', month:'2-digit', year:'numeric' });
+  const horaImpresion = new Date().toLocaleTimeString('es-AR', { hour:'2-digit', minute:'2-digit' });
+
+  // ── ENCABEZADO COMÚN ──────────────────────────────────
+  const encabezado = `
+    <div class="enc">
+      <div class="enc-left">
+        <div class="enc-bolt">⚡</div>
+        <div>
+          <div class="enc-titulo">CFP N° ${c.cfp} · Gestión Académica · FP</div>
+          <div class="enc-sub">Curso N° ${c.numero} · ${c.nombre}</div>
+        </div>
+      </div>
+      <div class="enc-right">
+        <div class="enc-dato"><span>Instructor:</span> ${c.instructor}</div>
+        <div class="enc-dato"><span>Impreso:</span> ${hoy} ${horaImpresion}</div>
+        <div class="enc-dato"><span>Período:</span> ${c.inicio} → ${c.fin}</div>
+      </div>
+    </div>`;
+
+  // ── SECCIÓN 1: DASHBOARD ─────────────────────────────
+  const a = DB.alumnos; const e = DB.entregas;
+  const estados = {};
+  a.forEach(al => { estados[al.estado] = (estados[al.estado]||0)+1; });
+  const notas = e.filter(x=>x.calificacion>0).map(x=>parseInt(x.calificacion));
+  const promedio = notas.length ? Math.round(notas.reduce((a,b)=>a+b,0)/notas.length) : 0;
+  const entregaron = e.filter(x=>x.entrego==='Si').length;
+  const pcp = (estados['Con PCP']||0)+(estados['Reincorporado']||0);
+
+  const estadoColores = {'Regular':'#1a7abf','Con PCP':'#7c3aed','Reincorporado':'#0d9488','Abandonó':'#dc2626','Egresó':'#16a34a'};
+
+  const kpiHtml = [
+    { label:'Total Alumnos', val: a.length, sub: `Curso ${c.numero}`, color:'#1a7abf' },
+    { label:'Con PCP Activo', val: pcp, sub: `${Math.round(pcp/a.length*100||0)}% del curso`, color:'#7c3aed' },
+    { label:'Regulares', val: estados['Regular']||0, sub:'Sin PCP activo', color:'#16a34a' },
+    { label:'Abandonaron', val: estados['Abandonó']||0, sub:`${Math.round((estados['Abandonó']||0)/a.length*100||0)}% del curso`, color:'#dc2626' },
+    { label:'Promedio Notas', val: promedio, sub:'/ 100 puntos', color:'#b45309' },
+    { label:'Entregas Recibidas', val: entregaron, sub:`de ${e.length} totales`, color:'#0d9488' },
+  ].map(k=>`
+    <div class="kpi-box" style="border-top:3px solid ${k.color}">
+      <div class="kpi-lbl">${k.label}</div>
+      <div class="kpi-num" style="color:${k.color}">${k.val}</div>
+      <div class="kpi-sub">${k.sub}</div>
+    </div>`).join('');
+
+  const estadoBarsHtml = Object.entries(estados).map(([k,v])=>{
+    const pct = Math.round(v/a.length*100);
+    const col = estadoColores[k]||'#999';
+    return `<div class="bar-r">
+      <div class="bar-lbl">${k}</div>
+      <div class="bar-tr"><div class="bar-fl" style="width:${pct}%;background:${col}"></div></div>
+      <div class="bar-v">${v} (${pct}%)</div>
+    </div>`;
+  }).join('');
+
+  const dist = {'95-100':0,'80-94':0,'70-79':0,'<70':0};
+  notas.forEach(n=>{ if(n>=95)dist['95-100']++; else if(n>=80)dist['80-94']++; else if(n>=70)dist['70-79']++; else dist['<70']++; });
+  const distColores = {'95-100':'#16a34a','80-94':'#0d9488','70-79':'#b45309','<70':'#dc2626'};
+  const distHtml = Object.entries(dist).map(([k,v])=>{
+    const pct = notas.length ? Math.round(v/notas.length*100) : 0;
+    const lbl = k==='95-100'?'95–100 pts':k==='80-94'?'80–94 pts':k==='70-79'?'70–79 pts':'< 70 pts';
+    return `<div class="bar-r">
+      <div class="bar-lbl">${lbl}</div>
+      <div class="bar-tr"><div class="bar-fl" style="width:${pct}%;background:${distColores[k]}"></div></div>
+      <div class="bar-v">${v}</div>
+    </div>`;
+  }).join('');
+
+  // Alertas NC
+  const nc = Object.entries(DB.seguimiento).filter(([id,s])=>Object.values(s).includes('NC'));
+  const alertasHtml = nc.length ? nc.map(([id])=>{
+    const al = a.find(x=>x.id==id);
+    return al ? `<tr><td>${al.nombre}</td><td>${al.estado}</td><td style="color:#dc2626;font-weight:600">Sin contacto (NC)</td></tr>` : '';
+  }).filter(Boolean).join('') : '<tr><td colspan="3" style="color:#16a34a">✅ Sin alertas activas</td></tr>';
+
+  const secDashboard = `
+    <div class="seccion page-break">
+      ${encabezado}
+      <div class="sec-titulo">📊 Dashboard — Resumen General</div>
+      <div class="kpi-grid">${kpiHtml}</div>
+      <div class="dos-col">
+        <div class="bloque">
+          <div class="bloque-titulo">Estado de Alumnos</div>
+          ${estadoBarsHtml}
+        </div>
+        <div class="bloque">
+          <div class="bloque-titulo">Distribución de Notas</div>
+          ${distHtml}
+        </div>
+      </div>
+      <div class="bloque" style="margin-top:16px">
+        <div class="bloque-titulo">⚠️ Alertas PCP — Sin Contacto (NC)</div>
+        <table><thead><tr><th>Alumno</th><th>Estado</th><th>Alerta</th></tr></thead>
+        <tbody>${alertasHtml}</tbody></table>
+      </div>
+    </div>`;
+
+  // ── SECCIÓN 2: LISTA DE ALUMNOS ──────────────────────
+  const alumnosRows = DB.alumnos.map(al=>`
+    <tr>
+      <td style="font-size:9px;color:#666">${al.id}</td>
+      <td><strong>${al.nombre}</strong></td>
+      <td style="text-align:center">${al.gen}</td>
+      <td>${al.dni||'—'}</td>
+      <td>${al.tel||'—'}</td>
+      <td><span class="badge" style="background:${estadoColores[al.estado]||'#999'}">${al.estado}</span></td>
+      <td style="font-size:9px">${al.motivoActivacion||'—'}</td>
+      <td style="font-size:9px">${al.ultimoContacto||'—'}</td>
+      <td style="font-size:9px">${al.proximaTutoria||'—'}</td>
+    </tr>`).join('');
+
+  const secAlumnos = `
+    <div class="seccion page-break">
+      ${encabezado}
+      <div class="sec-titulo">👥 Lista de Alumnos — Registro Completo</div>
+      <table>
+        <thead><tr>
+          <th>#</th><th>Nombre</th><th>Gén.</th><th>DNI</th><th>Teléfono</th>
+          <th>Estado</th><th>Motivo</th><th>Últ. Contacto</th><th>Próx. Tutoría</th>
+        </tr></thead>
+        <tbody>${alumnosRows}</tbody>
+      </table>
+    </div>`;
+
+  // ── SECCIÓN 3: SEGUIMIENTO SEMANAL ───────────────────
+  const SEMANAS = 10;
+  const segCodColores = {C:'#16a34a',E:'#1a7abf',P:'#7c3aed',NC:'#dc2626',V:'#0d9488',A:'#b45309',B:'#ca8a04'};
+  const segHeaders = Array.from({length:SEMANAS},(_,i)=>`<th>S${i+1}</th>`).join('');
+  const segRows = DB.alumnos.map(al=>{
+    const seg = DB.seguimiento[al.id]||{};
+    const celdas = Array.from({length:SEMANAS},(_,i)=>{
+      const v = seg[`sem${i+1}`]||'';
+      const bg = segCodColores[v]||'transparent';
+      const color = v ? '#fff' : '#ccc';
+      return `<td style="text-align:center"><span style="display:inline-block;min-width:20px;padding:1px 4px;border-radius:3px;background:${bg};color:${color};font-size:9px;font-weight:600">${v||'·'}</span></td>`;
+    }).join('');
+    return `<tr><td style="font-size:9px;color:#666">${al.id}</td><td>${al.nombre}</td>${celdas}</tr>`;
+  }).join('');
+
+  const leyendaSeg = Object.entries(segCodColores).map(([k,v])=>
+    `<span style="display:inline-flex;align-items:center;gap:4px;margin-right:12px">
+      <span style="display:inline-block;width:14px;height:14px;border-radius:3px;background:${v}"></span>
+      <span style="font-size:9px">${k}</span>
+    </span>`).join('');
+
+  const secSeguimiento = `
+    <div class="seccion page-break">
+      ${encabezado}
+      <div class="sec-titulo">📅 Seguimiento Semanal PCP</div>
+      <div style="margin-bottom:10px">${leyendaSeg}</div>
+      <table>
+        <thead><tr><th>#</th><th>Alumno</th>${segHeaders}</tr></thead>
+        <tbody>${segRows}</tbody>
+      </table>
+    </div>`;
+
+  // ── SECCIÓN 4: CONTROL DE ENTREGAS ───────────────────
+  const entregasRows = DB.entregas.map(en=>{
+    const notaColor = en.calificacion>=95?'#16a34a':en.calificacion>=80?'#0d9488':en.calificacion>=70?'#b45309':'#dc2626';
+    return `<tr>
+      <td>${en.nombre}</td>
+      <td>${en.modulo}</td>
+      <td style="text-align:center">${en.practica}</td>
+      <td>${en.tipoEval||'—'}</td>
+      <td>${en.fechaLimite||'—'}</td>
+      <td>${en.fechaEntrega||'—'}</td>
+      <td style="text-align:center"><span class="badge" style="background:${en.entrego==='Si'?'#16a34a':'#dc2626'}">${en.entrego}</span></td>
+      <td style="text-align:center;font-weight:700;color:${notaColor}">${en.calificacion||'—'}</td>
+    </tr>`;}).join('');
+
+  const secEntregas = `
+    <div class="seccion page-break">
+      ${encabezado}
+      <div class="sec-titulo">📝 Control de Entregas</div>
+      <table>
+        <thead><tr>
+          <th>Alumno</th><th>Módulo</th><th>Práctica</th><th>Tipo Eval.</th>
+          <th>Fecha Límite</th><th>Fecha Entrega</th><th>Entregó</th><th>Nota</th>
+        </tr></thead>
+        <tbody>${entregasRows}</tbody>
+      </table>
+    </div>`;
+
+  // ── CSS DE IMPRESIÓN ──────────────────────────────────
+  const estilos = `
+    @page { size: A4 landscape; margin: 12mm 14mm; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; color: #111; background: #fff; }
+    .page-break { page-break-after: always; }
+    .page-break:last-child { page-break-after: avoid; }
+
+    /* Encabezado */
+    .enc { display:flex; justify-content:space-between; align-items:center;
+           border-bottom: 2px solid #f0a500; padding-bottom:10px; margin-bottom:14px; }
+    .enc-left { display:flex; align-items:center; gap:10px; }
+    .enc-bolt { font-size:28px; line-height:1; }
+    .enc-titulo { font-size:14px; font-weight:700; color:#1a1a2e; }
+    .enc-sub { font-size:9px; color:#555; margin-top:2px; }
+    .enc-right { text-align:right; }
+    .enc-dato { font-size:9px; color:#555; margin-bottom:2px; }
+    .enc-dato span { font-weight:600; color:#333; }
+
+    /* Sección */
+    .sec-titulo { font-size:12px; font-weight:700; color:#1a1a2e; margin-bottom:12px;
+                  padding:6px 10px; background:#f5f5f5; border-left:4px solid #f0a500; border-radius:2px; }
+
+    /* KPIs */
+    .kpi-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:8px; margin-bottom:14px; }
+    .kpi-box { border:1px solid #ddd; border-radius:6px; padding:8px; text-align:center; }
+    .kpi-lbl { font-size:8px; color:#666; text-transform:uppercase; letter-spacing:0.05em; margin-bottom:4px; }
+    .kpi-num { font-size:20px; font-weight:700; line-height:1; }
+    .kpi-sub { font-size:8px; color:#888; margin-top:3px; }
+
+    /* Barras */
+    .dos-col { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    .bloque { border:1px solid #ddd; border-radius:6px; padding:10px; }
+    .bloque-titulo { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
+                     color:#555; margin-bottom:8px; }
+    .bar-r { display:flex; align-items:center; gap:6px; margin-bottom:5px; }
+    .bar-lbl { width:80px; font-size:9px; color:#444; flex-shrink:0; }
+    .bar-tr { flex:1; height:8px; background:#eee; border-radius:4px; overflow:hidden; }
+    .bar-fl { height:100%; border-radius:4px; }
+    .bar-v { width:24px; font-size:9px; color:#444; text-align:right; flex-shrink:0; }
+
+    /* Tablas */
+    table { width:100%; border-collapse:collapse; font-size:9px; }
+    thead tr { background:#1a1a2e; color:#fff; }
+    th { padding:5px 6px; text-align:left; font-weight:600; font-size:8px; text-transform:uppercase; letter-spacing:0.05em; }
+    td { padding:4px 6px; border-bottom:1px solid #eee; vertical-align:middle; }
+    tr:nth-child(even) td { background:#fafafa; }
+
+    /* Badges */
+    .badge { display:inline-block; padding:2px 6px; border-radius:3px; color:#fff; font-size:8px; font-weight:600; }
+
+    /* Botones de la ventana (no imprimen) */
+    .print-toolbar { display:flex; gap:10px; justify-content:center; padding:16px;
+                     background:#f5f5f5; border-bottom:1px solid #ddd; position:sticky; top:0; z-index:10; }
+    .btn-p { padding:8px 20px; border:none; border-radius:6px; cursor:pointer; font-size:12px; font-weight:600; }
+    .btn-imprimir { background:#1a1a2e; color:#fff; }
+    .btn-cerrar { background:#dc2626; color:#fff; }
+    @media print { .print-toolbar { display:none !important; } }
+  `;
+
+  // ── ABRIR VENTANA ─────────────────────────────────────
+  const ventana = window.open('', '_blank', 'width=1100,height=750,scrollbars=yes');
+  ventana.document.write(`<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Gestión Académica · FP · Impresión</title>
+  <style>${estilos}</style>
+</head>
+<body>
+  <div class="print-toolbar">
+    <button class="btn-p btn-imprimir" onclick="window.print()">🖨️ Imprimir / Guardar PDF</button>
+    <button class="btn-p btn-cerrar" onclick="window.close()">✕ Cerrar</button>
+  </div>
+  ${secDashboard}
+  ${secAlumnos}
+  ${secSeguimiento}
+  ${secEntregas}
+</body>
+</html>`);
+  ventana.document.close();
+
+  // Cerrar automáticamente después de imprimir
+  ventana.onafterprint = () => ventana.close();
 }
 
 // ════════════════════════════════════════════════════════
