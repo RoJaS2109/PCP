@@ -527,7 +527,7 @@ tr:last-child td { border-bottom: none; }
         <div class="field"><label>Módulo *</label>
           <select id="f-ent-modulo">
             <option>Módulo 1</option><option>Módulo 2</option><option>Módulo 3</option>
-            <option>Módulo 4</option><option>Módulo 5</option>
+            <option>Módulo 4</option><option>Módulo 5</option><option>Módulo 6</option><option>Módulo 7</option>
           </select>
         </div>
         <div class="field"><label>Práctica N°</label><input type="number" id="f-ent-practica" min="1" max="20"></div>
@@ -542,7 +542,7 @@ tr:last-child td { border-bottom: none; }
         <div class="field"><label>Entregó</label>
           <select id="f-ent-entrego"><option>Si</option><option>No</option></select>
         </div>
-        <div class="field"><label>Calificación (0–100)</label><input type="number" id="f-ent-nota" min="0" max="100"></div>
+        <div class="field"><label>Calificación (0–100)</label><input type="number" id="f-ent-nota" min="0" max="100" step="5"></div>
         <div class="field"><label>Feedback dado</label>
           <select id="f-ent-feedback"><option value="">—</option><option>Si</option><option>No</option></select>
         </div>
@@ -968,12 +968,12 @@ function renderDashboard() {
   document.getElementById('alertas-list').innerHTML = alertHTML || '<div class="empty" style="padding:20px">✅ Sin alertas activas</div>';
 
   // Notas distribución
-  const dist = {100:0, '80-99':0, '60-79':0, '<60':0};
-  notas.forEach(n=>{ if(n===100)dist[100]++; else if(n>=80)dist['80-99']++; else if(n>=60)dist['60-79']++; else dist['<60']++; });
-  const distColors = {100:'var(--green)','80-99':'var(--teal)','60-79':'var(--orange)','<60':'var(--red)'};
+  const dist = {100:0, '80-99':0, '70-79':0, '<70':0};
+  notas.forEach(n=>{ if(n===100)dist[100]++; else if(n>=80)dist['80-99']++; else if(n>=70)dist['70-79']++; else dist['<70']++; });
+  const distColors = {100:'var(--green)','80-99':'var(--teal)','70-79':'var(--orange)','<70':'var(--red)'};
   document.getElementById('notas-dist').innerHTML = Object.entries(dist).map(([k,v])=>`
     <div class="bar-row">
-      <div class="bar-label">${k==='100'?'100 pts':k==='80-99'?'80–99 pts':k==='60-79'?'60–79 pts':'< 60 pts'}</div>
+      <div class="bar-label">${k==='100'?'100 pts':k==='80-99'?'80–99 pts':k==='70-79'?'70–79 pts':'< 70 pts'}</div>
       <div class="bar-track"><div class="bar-fill" style="width:${notas.length?v/notas.length*100:0}%;background:${distColors[k]}"></div></div>
       <div class="bar-val">${v}</div>
     </div>`).join('');
