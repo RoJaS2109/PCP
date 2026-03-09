@@ -1782,9 +1782,10 @@ function abrirVentanaImpresion() {
 
   // ── CSS DE IMPRESIÓN ──────────────────────────────────
   const estilos = `
-    @page { size: A4 landscape; margin: 12mm 14mm; }
+    @page { size: A4 landscape; margin: 7mm; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; color: #111; background: #fff; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; color: #111; background: #fff; padding: 7mm; }
+    @media print { body { padding: 0; } }
     .page-break { page-break-after: always; }
     .page-break:last-child { page-break-after: avoid; }
 
