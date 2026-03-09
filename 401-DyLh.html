@@ -1004,15 +1004,15 @@ function renderDashboard() {
   // Matrícula Básica — distribución por género
   const genCounts = { M: 0, F: 0, X: 0 };
   a.forEach(al => { const g = al.gen || 'X'; genCounts[g] = (genCounts[g]||0) + 1; });
-  const total = a.length || 1;
+  const genTotal = a.length || 1;
   const genConfig = {
     M: { label:'Masculino',  icon:'👨', color:'#06b6d4', bg:'rgba(6,182,212,0.1)',  border:'rgba(6,182,212,0.25)'  },
     F: { label:'Femenino',   icon:'👩', color:'#e879f9', bg:'rgba(232,121,249,0.1)', border:'rgba(232,121,249,0.25)' },
-    X: { label:'No especif.',icon:'🧑', color:'#a855f7', bg:'rgba(168,85,247,0.1)',  border:'rgba(168,85,247,0.25)'  },
+    X: { label:'No especif.',icon:'🧑', color:'#f0a500', bg:'rgba(240,165,0,0.1)',  border:'rgba(240,165,0,0.25)'  },
   };
   const genCardsHtml = Object.entries(genConfig).map(([k, cfg]) => {
     const n = genCounts[k] || 0;
-    const pct = Math.round(n / total * 100);
+    const pct = Math.round(n / genTotal * 100);
     return `
     <div class="gen-card" style="background:${cfg.bg};border-color:${cfg.border}">
       <span class="gen-icon">${cfg.icon}</span>
@@ -1033,12 +1033,12 @@ function renderDashboard() {
       <div class="gen-bar-wrap">
         <div class="gen-bar-seg" style="width:${pctM}%;background:#06b6d4" title="M ${pctM}%"></div>
         <div class="gen-bar-seg" style="width:${pctF}%;background:#e879f9" title="F ${pctF}%"></div>
-        <div class="gen-bar-seg" style="width:${pctX}%;background:#a855f7" title="X ${pctX}%"></div>
+        <div class="gen-bar-seg" style="width:${pctX}%;background:#f0a500" title="X ${pctX}%"></div>
       </div>
       <div style="display:flex;justify-content:space-between;margin-top:5px">
         <span style="font-size:0.62rem;color:#06b6d4;font-family:var(--mono)">M ${pctM}%</span>
         <span style="font-size:0.62rem;color:#e879f9;font-family:var(--mono)">F ${pctF}%</span>
-        <span style="font-size:0.62rem;color:#a855f7;font-family:var(--mono)">X ${pctX}%</span>
+        <span style="font-size:0.62rem;color:#f0a500;font-family:var(--mono)">X ${pctX}%</span>
       </div>
     </div>`;
 
@@ -1737,7 +1737,7 @@ function abrirVentanaImpresion() {
 
   const genPrint = { M:0, F:0, X:0 };
   a.forEach(al => { const g = al.gen||'X'; genPrint[g] = (genPrint[g]||0)+1; });
-  const genColPrint = { M:'#06b6d4', F:'#e879f9', X:'#a855f7' };
+  const genColPrint = { M:'#06b6d4', F:'#e879f9', X:'#f0a500' };
   const genLblPrint = { M:'Masculino', F:'Femenino', X:'No especif.' };
   const matriculaHtml = Object.entries(genPrint).map(([k,v])=>{
     const pct = Math.round(v/a.length*100||0);
