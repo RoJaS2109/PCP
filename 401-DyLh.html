@@ -454,11 +454,15 @@ tr:last-child td { border-bottom: none; }
     </div>
   </div>
 
-  <!-- Fila 2: Alertas + Top Alumnos -->
-  <div class="two-col">
+  <!-- Fila 2: Alertas + Próximas Tutorías + Top Alumnos -->
+  <div class="three-col">
     <div class="card" id="card-alertas">
       <div class="card-title"><span class="dot" id="dot-alertas" style="background:var(--red)"></span> Alertas · Alumno Sin Contacto</div>
       <div id="alertas-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:var(--accent)"></span> Próximas Tutorías</div>
+      <div id="proximas-tutorias"></div>
     </div>
     <div class="card">
       <div class="card-title"><span class="dot" style="background:var(--accent2)"></span> Top Alumnos por Nota</div>
@@ -1137,7 +1141,38 @@ function renderDashboard() {
     dotAlertas.classList.remove('dot-alerta-pulso');
   }
 
-  // ── TOP ALUMNOS ───────────────────────────────────────
+  // ── PRÓXIMAS TUTORÍAS ─────────────────────────────────
+  const hoy = new Date(); hoy.setHours(0,0,0,0);
+  const conTutoria = a
+    .filter(al => al.proximaTutoria && al.proximaTutoria !== '')
+    .map(al => {
+      const fecha = new Date(al.proximaTutoria);
+      const diffDias = Math.ceil((fecha - hoy) / (1000 * 60 * 60 * 24));
+      return { ...al, fecha, diffDias };
+    })
+    .filter(al => al.diffDias >= 0)
+    .sort((a, b) => a.diffDias - b.diffDias)
+    .slice(0, 8);
+
+  const tutoriasHTML = conTutoria.length ? conTutoria.map(al => {
+    const urgente = al.diffDias <= 2;
+    const pronto  = al.diffDias <= 7;
+    const color   = urgente ? 'var(--red)' : pronto ? 'var(--orange)' : 'var(--accent)';
+    const etiq    = al.diffDias === 0 ? 'Hoy' : al.diffDias === 1 ? 'Mañana' : `en ${al.diffDias}d`;
+    return `
+    <div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid rgba(48,54,61,0.5)">
+      ${genAv(al.gen, al.nombre)}
+      <div style="flex:1;min-width:0">
+        <div style="font-size:0.78rem;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${al.nombre}</div>
+        <div style="font-size:0.65rem;color:var(--muted)">${fmtDate(al.proximaTutoria)}</div>
+      </div>
+      <span style="font-size:0.68rem;font-weight:700;color:${color};font-family:var(--mono);
+                   background:rgba(255,255,255,0.05);padding:2px 7px;border-radius:6px;
+                   border:1px solid ${color};flex-shrink:0">${etiq}</span>
+    </div>`;
+  }).join('') : '<div class="empty" style="padding:20px">📅 Sin tutorías programadas</div>';
+
+  document.getElementById('proximas-tutorias').innerHTML = tutoriasHTML;
   const conNota = e.filter(x=>x.calificacion>0).sort((a,b)=>b.calificacion-a.calificacion).slice(0,8);
   document.getElementById('top-alumnos').innerHTML = `<div class="table-wrap"><table>
     <thead><tr><th>Alumno</th><th>Módulo</th><th>Nota</th></tr></thead>
