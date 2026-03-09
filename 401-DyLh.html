@@ -185,6 +185,21 @@ tr:last-child td { border-bottom: none; }
 .three-col { display:grid; grid-template-columns:1fr 1fr 1fr; gap:18px; }
 @media(max-width:900px) { .two-col,.three-col { grid-template-columns:1fr; } }
 
+/* MATRÍCULA BÁSICA */
+.gen-cards { display:flex; flex-direction:column; gap:8px; margin-bottom:12px; }
+.gen-card {
+  display:flex; align-items:center; gap:10px;
+  padding:9px 12px; border-radius:10px;
+  background:var(--surface2); border:1px solid var(--border);
+}
+.gen-icon { font-size:1.3rem; flex-shrink:0; }
+.gen-info { flex:1; min-width:0; }
+.gen-label { font-size:0.63rem; color:var(--muted); font-family:var(--mono); text-transform:uppercase; letter-spacing:0.07em; }
+.gen-count { font-size:1.25rem; font-weight:700; line-height:1.1; }
+.gen-pct { font-size:0.65rem; color:var(--muted); }
+.gen-bar-wrap { height:7px; background:var(--surface3); border-radius:4px; overflow:hidden; display:flex; margin-top:2px; }
+.gen-bar-seg { height:100%; transition:width 0.5s ease; }
+
 /* ALERT ROW */
 .alert-item { display:flex; align-items:flex-start; gap:12px; padding:10px 14px; border-radius:10px; background:rgba(248,81,73,0.07); border:1px solid rgba(248,81,73,0.18); margin-bottom:8px; }
 .alert-item.warn { background:rgba(210,153,34,0.07); border-color:rgba(210,153,34,0.2); }
@@ -394,7 +409,7 @@ tr:last-child td { border-bottom: none; }
   <div class="curso-info" id="curso-info-cards"></div>
   <div class="kpi-grid" id="kpi-grid"></div>
 
-  <div class="two-col">
+  <div class="three-col">
     <div class="card">
       <div class="card-title"><span class="dot"></span> Estado de Alumnos</div>
       <div id="estado-bars"></div>
@@ -402,6 +417,10 @@ tr:last-child td { border-bottom: none; }
     <div class="card">
       <div class="card-title"><span class="dot" style="background:var(--red)"></span> Alertas PCP Activas</div>
       <div id="alertas-list"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot" style="background:#e879f9"></span> Matrícula Básica</div>
+      <div id="matricula-basica"></div>
     </div>
   </div>
 
@@ -981,6 +1000,50 @@ function renderDashboard() {
     </div>`;
   }).filter(Boolean).join('');
   document.getElementById('alertas-list').innerHTML = alertHTML || '<div class="empty" style="padding:20px">✅ Sin alertas activas</div>';
+
+  // Matrícula Básica — distribución por género
+  const genCounts = { M: 0, F: 0, X: 0 };
+  a.forEach(al => { const g = al.gen || 'X'; genCounts[g] = (genCounts[g]||0) + 1; });
+  const total = a.length || 1;
+  const genConfig = {
+    M: { label:'Masculino',  icon:'👨', color:'#06b6d4', bg:'rgba(6,182,212,0.1)',  border:'rgba(6,182,212,0.25)'  },
+    F: { label:'Femenino',   icon:'👩', color:'#e879f9', bg:'rgba(232,121,249,0.1)', border:'rgba(232,121,249,0.25)' },
+    X: { label:'No especif.',icon:'🧑', color:'#a855f7', bg:'rgba(168,85,247,0.1)',  border:'rgba(168,85,247,0.25)'  },
+  };
+  const genCardsHtml = Object.entries(genConfig).map(([k, cfg]) => {
+    const n = genCounts[k] || 0;
+    const pct = Math.round(n / total * 100);
+    return `
+    <div class="gen-card" style="background:${cfg.bg};border-color:${cfg.border}">
+      <span class="gen-icon">${cfg.icon}</span>
+      <div class="gen-info">
+        <div class="gen-label">${cfg.label}</div>
+        <div class="gen-count" style="color:${cfg.color}">${n}</div>
+        <div class="gen-pct">${pct}% del total</div>
+      </div>
+    </div>`;
+  }).join('');
+
+  // Barra proporcional tricolor
+  const pctM = Math.round(genCounts.M / total * 100);
+  const pctF = Math.round(genCounts.F / total * 100);
+  const pctX = 100 - pctM - pctF;
+  const barHtml = `
+    <div style="margin-top:4px">
+      <div class="gen-bar-wrap">
+        <div class="gen-bar-seg" style="width:${pctM}%;background:#06b6d4" title="M ${pctM}%"></div>
+        <div class="gen-bar-seg" style="width:${pctF}%;background:#e879f9" title="F ${pctF}%"></div>
+        <div class="gen-bar-seg" style="width:${pctX}%;background:#a855f7" title="X ${pctX}%"></div>
+      </div>
+      <div style="display:flex;justify-content:space-between;margin-top:5px">
+        <span style="font-size:0.62rem;color:#06b6d4;font-family:var(--mono)">M ${pctM}%</span>
+        <span style="font-size:0.62rem;color:#e879f9;font-family:var(--mono)">F ${pctF}%</span>
+        <span style="font-size:0.62rem;color:#a855f7;font-family:var(--mono)">X ${pctX}%</span>
+      </div>
+    </div>`;
+
+  document.getElementById('matricula-basica').innerHTML = `
+    <div class="gen-cards">${genCardsHtml}</div>${barHtml}`;
 
   // Notas distribución
   const dist = {'95-100':0, '80-94':0, '70-79':0, '<70':0};
@@ -1672,6 +1735,19 @@ function abrirVentanaImpresion() {
     return al ? `<tr><td>${al.nombre}</td><td>${al.estado}</td><td style="color:#dc2626;font-weight:600">Sin contacto (NC)</td></tr>` : '';
   }).filter(Boolean).join('') : '<tr><td colspan="3" style="color:#16a34a">✅ Sin alertas activas</td></tr>';
 
+  const genPrint = { M:0, F:0, X:0 };
+  a.forEach(al => { const g = al.gen||'X'; genPrint[g] = (genPrint[g]||0)+1; });
+  const genColPrint = { M:'#06b6d4', F:'#e879f9', X:'#a855f7' };
+  const genLblPrint = { M:'Masculino', F:'Femenino', X:'No especif.' };
+  const matriculaHtml = Object.entries(genPrint).map(([k,v])=>{
+    const pct = Math.round(v/a.length*100||0);
+    return `<div class="bar-r">
+      <div class="bar-lbl">${genLblPrint[k]}</div>
+      <div class="bar-tr"><div class="bar-fl" style="width:${pct}%;background:${genColPrint[k]}"></div></div>
+      <div class="bar-v">${v} (${pct}%)</div>
+    </div>`;
+  }).join('');
+
   const secDashboard = `
     <div class="seccion page-break">
       ${encabezado}
@@ -1687,10 +1763,16 @@ function abrirVentanaImpresion() {
           ${distHtml}
         </div>
       </div>
-      <div class="bloque" style="margin-top:16px">
-        <div class="bloque-titulo">⚠️ Alertas PCP — Sin Contacto (NC)</div>
-        <table><thead><tr><th>Alumno</th><th>Estado</th><th>Alerta</th></tr></thead>
-        <tbody>${alertasHtml}</tbody></table>
+      <div class="dos-col" style="margin-top:12px">
+        <div class="bloque">
+          <div class="bloque-titulo">⚠️ Alertas PCP — Sin Contacto (NC)</div>
+          <table><thead><tr><th>Alumno</th><th>Estado</th><th>Alerta</th></tr></thead>
+          <tbody>${alertasHtml}</tbody></table>
+        </div>
+        <div class="bloque">
+          <div class="bloque-titulo">👥 Matrícula Básica — Distribución por Género</div>
+          ${matriculaHtml}
+        </div>
       </div>
     </div>`;
 
@@ -1712,7 +1794,7 @@ function abrirVentanaImpresion() {
     <div class="seccion page-break">
       ${encabezado}
       <div class="sec-titulo">👥 Lista de Alumnos — Registro Completo</div>
-      <table>
+      <table class="t-alumnos">
         <thead><tr>
           <th>#</th><th>Nombre</th><th>Gén.</th><th>DNI</th><th>Teléfono</th>
           <th>Estado</th><th>Motivo</th><th>Últ. Contacto</th><th>Próx. Tutoría</th>
@@ -1771,7 +1853,7 @@ function abrirVentanaImpresion() {
     <div class="seccion page-break">
       ${encabezado}
       <div class="sec-titulo">📝 Control de Entregas</div>
-      <table>
+      <table class="t-entregas">
         <thead><tr>
           <th>Alumno</th><th>Módulo</th><th>Práctica</th><th>Tipo Eval.</th>
           <th>Fecha Límite</th><th>Fecha Entrega</th><th>Entregó</th><th>Nota</th>
@@ -1782,22 +1864,26 @@ function abrirVentanaImpresion() {
 
   // ── CSS DE IMPRESIÓN ──────────────────────────────────
   const estilos = `
-    @page { size: A4 landscape; margin: 7mm; }
+    @page { size: A4 landscape; margin: 12mm 15mm; }
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; color: #111; background: #fff; padding: 7mm; }
+    body { font-family: 'Segoe UI', Arial, sans-serif; font-size: 10px; color: #111; background: #fff; padding: 8mm; }
     @media print { body { padding: 0; } }
-    .page-break { page-break-after: always; }
+    .page-break { page-break-after: always; overflow: hidden; }
     .page-break:last-child { page-break-after: avoid; }
+    .seccion { width: 100%; max-width: 100%; overflow: hidden; }
+    table { width: 100%; max-width: 100%; border-collapse: collapse; font-size: 9px; table-layout: fixed; }
+    td, th { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; word-break: break-word; }
 
     /* Encabezado */
     .enc { display:flex; justify-content:space-between; align-items:center;
-           border-bottom: 2px solid #f0a500; padding-bottom:10px; margin-bottom:14px; }
-    .enc-left { display:flex; align-items:center; gap:10px; }
-    .enc-bolt { font-size:28px; line-height:1; }
-    .enc-titulo { font-size:14px; font-weight:700; color:#1a1a2e; }
+           border-bottom: 2px solid #f0a500; padding-bottom:10px; margin-bottom:14px;
+           width:100%; overflow:hidden; }
+    .enc-left { display:flex; align-items:center; gap:10px; flex:1; min-width:0; }
+    .enc-bolt { font-size:28px; line-height:1; flex-shrink:0; }
+    .enc-titulo { font-size:13px; font-weight:700; color:#1a1a2e; white-space:nowrap; }
     .enc-sub { font-size:9px; color:#555; margin-top:2px; }
-    .enc-right { text-align:right; }
-    .enc-dato { font-size:9px; color:#555; margin-bottom:2px; }
+    .enc-right { text-align:right; flex-shrink:0; padding-left:10px; }
+    .enc-dato { font-size:9px; color:#555; margin-bottom:2px; white-space:nowrap; }
     .enc-dato span { font-weight:600; color:#333; }
 
     /* Sección */
@@ -1823,11 +1909,32 @@ function abrirVentanaImpresion() {
     .bar-v { width:24px; font-size:9px; color:#444; text-align:right; flex-shrink:0; }
 
     /* Tablas */
-    table { width:100%; border-collapse:collapse; font-size:9px; }
+    table { width:100%; border-collapse:collapse; font-size:9px; table-layout:fixed; }
     thead tr { background:#1a1a2e; color:#fff; }
-    th { padding:5px 6px; text-align:left; font-weight:600; font-size:8px; text-transform:uppercase; letter-spacing:0.05em; }
-    td { padding:4px 6px; border-bottom:1px solid #eee; vertical-align:middle; }
+    th { padding:5px 4px; text-align:left; font-weight:600; font-size:8px; text-transform:uppercase;
+         letter-spacing:0.04em; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+    td { padding:4px; border-bottom:1px solid #eee; vertical-align:middle;
+         overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
     tr:nth-child(even) td { background:#fafafa; }
+    /* Anchos fijos tabla alumnos */
+    .t-alumnos th:nth-child(1), .t-alumnos td:nth-child(1) { width:4%; }
+    .t-alumnos th:nth-child(2), .t-alumnos td:nth-child(2) { width:20%; white-space:normal; }
+    .t-alumnos th:nth-child(3), .t-alumnos td:nth-child(3) { width:5%; }
+    .t-alumnos th:nth-child(4), .t-alumnos td:nth-child(4) { width:10%; }
+    .t-alumnos th:nth-child(5), .t-alumnos td:nth-child(5) { width:12%; }
+    .t-alumnos th:nth-child(6), .t-alumnos td:nth-child(6) { width:12%; }
+    .t-alumnos th:nth-child(7), .t-alumnos td:nth-child(7) { width:14%; white-space:normal; }
+    .t-alumnos th:nth-child(8), .t-alumnos td:nth-child(8) { width:11%; }
+    .t-alumnos th:nth-child(9), .t-alumnos td:nth-child(9) { width:12%; }
+    /* Anchos fijos tabla entregas */
+    .t-entregas th:nth-child(1), .t-entregas td:nth-child(1) { width:22%; white-space:normal; }
+    .t-entregas th:nth-child(2), .t-entregas td:nth-child(2) { width:10%; }
+    .t-entregas th:nth-child(3), .t-entregas td:nth-child(3) { width:8%; }
+    .t-entregas th:nth-child(4), .t-entregas td:nth-child(4) { width:14%; }
+    .t-entregas th:nth-child(5), .t-entregas td:nth-child(5) { width:12%; }
+    .t-entregas th:nth-child(6), .t-entregas td:nth-child(6) { width:12%; }
+    .t-entregas th:nth-child(7), .t-entregas td:nth-child(7) { width:10%; }
+    .t-entregas th:nth-child(8), .t-entregas td:nth-child(8) { width:12%; }
 
     /* Badges */
     .badge { display:inline-block; padding:2px 6px; border-radius:3px; color:#fff; font-size:8px; font-weight:600; }
