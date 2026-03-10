@@ -1107,11 +1107,13 @@ function mostrarLoginError(msg) {
 // ════════════════════════════════════════════════════════
 async function sheetsGet(sheet) {
   const cursoId = AUTH.cursoId || '3004';
+  console.log('[sheetsGet] sheet:', sheet, '| AUTH.cursoId:', AUTH.cursoId, '| usando:', cursoId);
   const res = await fetch(SCRIPT_URL, {
     method: 'POST',
     body: JSON.stringify({ action: 'getAll', sheet, curso: cursoId, userEmail: AUTH.user ? AUTH.user.email : '' })
   });
   const json = await res.json();
+  console.log('[sheetsGet] respuesta curso:', json.curso, '| filas:', json.data ? json.data.length : 'error');
   if (!json.ok) throw new Error(json.error);
   return json.data;
 }
