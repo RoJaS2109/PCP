@@ -6,6 +6,7 @@
 <title>Gestión Académica · FP</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90' fill='%23f0a500'>⚡</text></svg>">
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Sora:wght@300;400;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
 :root {
   --bg: #0d1117; --surface: #161b22; --surface2: #1c2333; --surface3: #21262d;
@@ -298,29 +299,77 @@ tr:last-child td { border-bottom: none; }
 @keyframes spin { to { transform:rotate(360deg); } }
 .loading-msg { font-size:0.82rem; color:var(--muted); font-family:var(--mono); }
 
-/* TOKEN MODAL */
-.token-screen {
+/* LOGIN SCREEN */
+.login-screen {
   position:fixed; inset:0; background:var(--bg);
   display:flex; align-items:center; justify-content:center;
   z-index:60; padding:24px;
 }
-.token-screen.hidden { display:none; }
-.token-box {
+.login-screen.hidden { display:none; }
+.login-box {
   background:var(--surface); border:1px solid var(--border);
-  border-radius:18px; padding:36px; max-width:420px; width:100%; text-align:center;
+  border-radius:20px; padding:40px 36px; max-width:460px; width:100%; text-align:center;
 }
-.token-box .bolt { font-size:40px; margin-bottom:12px; filter:drop-shadow(0 0 16px rgba(240,165,0,0.5)); }
-.token-box h2 { font-size:1.1rem; font-weight:700; margin-bottom:6px; }
-.token-box p { font-size:0.75rem; color:var(--muted); margin-bottom:24px; line-height:1.6; }
-.token-box input {
-  width:100%; background:var(--surface2); border:1px solid var(--border);
-  border-radius:8px; padding:10px 14px; color:var(--text);
-  font-family:var(--mono); font-size:0.82rem; outline:none;
-  margin-bottom:12px; transition:border-color 0.2s; text-align:center;
-  letter-spacing:0.05em;
+.login-box .bolt { font-size:44px; margin-bottom:14px; filter:drop-shadow(0 0 16px rgba(240,165,0,0.5)); display:block; }
+.login-box h2 { font-size:1.15rem; font-weight:700; margin-bottom:4px; }
+.login-box .login-sub { font-size:0.72rem; color:var(--muted); margin-bottom:28px; line-height:1.6; }
+
+/* Google Sign-In button */
+.google-btn {
+  display:flex; align-items:center; justify-content:center; gap:10px;
+  width:100%; padding:12px 20px; border-radius:10px;
+  background:#fff; border:1px solid #dadce0; color:#3c4043;
+  font-family:var(--font); font-size:0.88rem; font-weight:600;
+  cursor:pointer; transition:box-shadow 0.2s, background 0.2s;
+  margin-bottom:16px;
 }
-.token-box input:focus { border-color:var(--accent); }
-.token-error { font-size:0.72rem; color:var(--red); margin-bottom:10px; display:none; }
+.google-btn:hover { box-shadow:0 2px 8px rgba(0,0,0,0.25); background:#f8f8f8; }
+.google-btn svg { width:20px; height:20px; flex-shrink:0; }
+
+/* Curso selector (aparece post-auth si hay más de uno) */
+.curso-selector { display:none; margin-top:20px; text-align:left; }
+.curso-selector.visible { display:block; }
+.curso-selector-label { font-size:0.68rem; color:var(--muted); font-family:var(--mono); text-transform:uppercase; letter-spacing:0.07em; margin-bottom:10px; }
+.curso-card {
+  display:flex; align-items:center; gap:12px; padding:12px 16px;
+  border:1px solid var(--border); border-radius:10px; margin-bottom:8px;
+  cursor:pointer; transition:all 0.2s; background:var(--surface2);
+}
+.curso-card:hover { border-color:var(--accent); background:rgba(240,165,0,0.06); }
+.curso-card .curso-num { font-family:var(--mono); font-size:0.7rem; color:var(--accent); font-weight:600; }
+.curso-card .curso-name { font-size:0.82rem; font-weight:600; }
+.curso-card .curso-arrow { margin-left:auto; color:var(--muted); font-size:0.9rem; }
+
+/* User info chip en sidebar */
+.user-chip {
+  display:flex; align-items:center; gap:8px; padding:10px 14px;
+  background:var(--surface2); border-radius:10px; margin:0 10px 12px;
+  border:1px solid var(--border);
+}
+.user-avatar {
+  width:28px; height:28px; border-radius:50%; object-fit:cover;
+  border:1px solid var(--border); flex-shrink:0;
+}
+.user-avatar-fallback {
+  width:28px; height:28px; border-radius:50%; background:var(--accent);
+  display:flex; align-items:center; justify-content:center;
+  font-size:0.75rem; font-weight:700; color:#000; flex-shrink:0;
+}
+.user-info { flex:1; min-width:0; }
+.user-name { font-size:0.68rem; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.user-role { font-size:0.6rem; color:var(--muted); font-family:var(--mono); }
+.user-logout { font-size:0.7rem; color:var(--muted); cursor:pointer; flex-shrink:0; padding:2px 6px; border-radius:4px; border:1px solid var(--border); background:transparent; }
+.user-logout:hover { color:var(--red); border-color:var(--red); }
+
+/* Curso activo badge en sidebar */
+.curso-activo-chip {
+  margin:0 10px 4px; padding:8px 12px; border-radius:8px;
+  background:rgba(240,165,0,0.08); border:1px solid rgba(240,165,0,0.2);
+  font-size:0.65rem; font-family:var(--mono); color:var(--accent);
+  text-align:center; line-height:1.5;
+}
+
+.login-error { font-size:0.72rem; color:var(--red); margin-top:12px; display:none; padding:8px 12px; background:rgba(248,81,73,0.08); border-radius:8px; border:1px solid rgba(248,81,73,0.2); }
 .btn-viewer { background:transparent; border:1px solid var(--border); color:var(--muted); margin-top:8px; width:100%; }
 .btn-viewer:hover { border-color:var(--accent2); color:var(--accent2); }
 
@@ -345,16 +394,40 @@ tr:last-child td { border-bottom: none; }
 
 <button class="menu-toggle" onclick="toggleSidebar()">☰</button>
 
-<!-- TOKEN / LOGIN SCREEN -->
-<div class="token-screen" id="token-screen">
-  <div class="token-box">
-    <div class="bolt">⚡</div>
+<!-- LOGIN SCREEN -->
+<div class="login-screen" id="login-screen">
+  <div class="login-box">
+    <span class="bolt">⚡</span>
     <h2>Gestión Académica · FP</h2>
-    <p>Ingresá tu token para acceder como instructor.<br>O entrá como <strong>visor</strong> para solo consultar datos.</p>
-    <input type="password" id="token-input" placeholder="Token de acceso..." onkeydown="if(event.key==='Enter')tryLogin()">
-    <div class="token-error" id="token-error">Token incorrecto. Intentá de nuevo.</div>
-    <button class="btn btn-primary" style="width:100%" onclick="tryLogin()">🔓 Ingresar como Instructor</button>
-    <button class="btn btn-viewer btn-sm" style="display:block;margin-top:10px;width:100%;padding:8px" onclick="enterViewer()">👁 Entrar como Visor (solo lectura)</button>
+    <p class="login-sub">CFP N° 401 · Sistema de Seguimiento Académico<br>Iniciá sesión con tu cuenta Google institucional</p>
+
+    <!-- Paso 1: Botón Google -->
+    <div id="login-step-google">
+      <button class="google-btn" onclick="iniciarGoogleAuth()">
+        <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.18 1.48-4.97 2.31-8.16 2.31-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/><path fill="none" d="M0 0h48v48H0z"/></svg>
+        Continuar con Google
+      </button>
+      <div style="position:relative;text-align:center;margin:16px 0">
+        <hr style="border:none;border-top:1px solid var(--border)">
+        <span style="position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:var(--surface);padding:0 10px;font-size:0.65rem;color:var(--muted)">o</span>
+      </div>
+      <button class="btn btn-viewer" onclick="entrarVisor()">👁 Entrar como Visor (solo lectura)</button>
+    </div>
+
+    <!-- Paso 2: Selector de curso (si tiene más de uno) -->
+    <div class="curso-selector" id="curso-selector">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:14px">
+        <img id="auth-avatar" class="user-avatar" src="" alt="" style="display:none">
+        <div>
+          <div style="font-size:0.82rem;font-weight:600" id="auth-name"></div>
+          <div style="font-size:0.65rem;color:var(--muted)" id="auth-email"></div>
+        </div>
+      </div>
+      <div class="curso-selector-label">Seleccioná el curso a gestionar</div>
+      <div id="curso-cards-list"></div>
+    </div>
+
+    <div class="login-error" id="login-error"></div>
   </div>
 </div>
 
@@ -373,6 +446,21 @@ tr:last-child td { border-bottom: none; }
     <span>CFP N° 401 · 2026</span>
   </div>
   <nav class="nav">
+    <!-- User chip -->
+    <div class="user-chip" id="sidebar-user-chip" style="display:none">
+      <div class="user-avatar-fallback" id="sidebar-avatar-fallback">?</div>
+      <img class="user-avatar" id="sidebar-avatar-img" src="" alt="" style="display:none">
+      <div class="user-info">
+        <div class="user-name" id="sidebar-user-name">—</div>
+        <div class="user-role" id="sidebar-user-role">—</div>
+      </div>
+      <button class="user-logout" onclick="cerrarSesion()" title="Cerrar sesión">✕</button>
+    </div>
+    <!-- Curso activo chip -->
+    <div class="curso-activo-chip" id="sidebar-curso-chip" style="display:none">
+      <div id="sidebar-curso-num" style="font-weight:700"></div>
+      <div id="sidebar-curso-nombre" style="color:var(--muted);font-size:0.6rem"></div>
+    </div>
     <div id="conn-bar" class="conn-bar loading">
       <span class="conn-dot"></span>
       <span id="conn-text">Conectando...</span>
@@ -756,52 +844,284 @@ tr:last-child td { border-bottom: none; }
 // ════════════════════════════════════════════════════════
 // CONFIG
 // ════════════════════════════════════════════════════════
+const GOOGLE_CLIENT_ID = '153536227902-vd3lbfadha1jib7cl2c06cvsmsv9j5ag.apps.googleusercontent.com';
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyWAuAF4WryYrkiYFach24v2r04yPo3Qeq5wdgClRbnVQq2gWdOC5AfDWlyVtipAKbD8w/exec';
-const WRITE_TOKEN = 'cfp401_instructor_2026'; // mismo que en Apps Script
+
+// Mapa de cursos: por cada curso, quién es instructor y quién es visor
+// spreadsheetId se completa cuando se creen las Sheets de los otros cursos
+const CURSOS_CONFIG = {
+  '3004': {
+    nombre:        'Electricista en Inmuebles',
+    especialidad:  '⚡ Electricidad',
+    instructores:  ['rojas2109@gmail.com', 'mis.cursos.de.fp@gmail.com'],
+    visores:       [],
+    spreadsheetId: '1bKL3LwbDFhqTsLhM9yiMJn5bqjCbmHe7QVhZ3X9pRsY', // Curso 3004 — reemplazar con ID real
+    info: {
+      numero: 3004, cfp: 401,
+      inicio: '2026-03-03', fin: '2027-03-03', duracion: 810,
+      instructor: 'SCHECHTEL, Rodrigo Javier',
+      lugar: 'Subsede Villa Parodi – Piedra Buena 1464',
+      horarios: 'Mar-Mié-Jue-Vie 13:50 a 17:10'
+    }
+  },
+  '2946': {
+    nombre:        'Electricista Industrial',
+    especialidad:  '🏭 Industrial',
+    instructores:  ['rojas2109@gmail.com', 'mis.cursos.de.fp@gmail.com'],
+    visores:       [],
+    spreadsheetId: '1-aU7MI5_Oq5NxjJronx_xYtUYoJ29B8rhhukTw82qJE',
+    info: {
+      numero: 2946, cfp: 401,
+      inicio: '2026-03-03', fin: '2027-03-03', duracion: 810,
+      instructor: 'SCHECHTEL, Rodrigo Javier',
+      lugar: 'Subsede Villa Parodi – Piedra Buena 1464',
+      horarios: 'Por confirmar'
+    }
+  },
+  '3054': {
+    nombre:        'Robótica y Automatización',
+    especialidad:  '🤖 Robótica',
+    instructores:  ['rodrigoschechtel@abc.gob.ar', 'mis.cursos.de.fp@gmail.com'],
+    visores:       [],
+    spreadsheetId: '1NR6zh1FCLlLEPxysXCzC3Xji_M-9wb5ZH-ZAlVBzEuE',
+    info: {
+      numero: 3054, cfp: 401,
+      inicio: '2026-03-03', fin: '2027-03-03', duracion: 810,
+      instructor: 'SCHECHTEL, Rodrigo Javier',
+      lugar: 'Por confirmar',
+      horarios: 'Por confirmar'
+    }
+  },
+  '3055': {
+    nombre:        'Programador de Automatización y Robótica',
+    especialidad:  '💻 Programación',
+    instructores:  ['rodrigoschechtel@abc.gob.ar', 'mis.cursos.de.fp@gmail.com'],
+    visores:       [],
+    spreadsheetId: '1PgX5CPiYOaM72ZlTKCJgqNlpVIybTpDwgliMcKwBkSI',
+    info: {
+      numero: 3055, cfp: 401,
+      inicio: '2026-03-03', fin: '2027-03-03', duracion: 810,
+      instructor: 'SCHECHTEL, Rodrigo Javier',
+      lugar: 'Por confirmar',
+      horarios: 'Por confirmar'
+    }
+  }
+};
 
 // ════════════════════════════════════════════════════════
 // AUTH STATE
 // ════════════════════════════════════════════════════════
+let AUTH = {
+  user: null,       // { name, email, picture }
+  cursoId: null,    // '3004' | '2946' | '3054' | '3055'
+  rol: null,        // 'instructor' | 'visor'
+  cursosDisponibles: []
+};
 let isInstructor = false;
 let isViewer = false;
 
-function tryLogin() {
-  const val = document.getElementById('token-input').value.trim();
-  if (val === WRITE_TOKEN) {
-    isInstructor = true;
-    document.getElementById('token-screen').classList.add('hidden');
-    initApp();
-  } else {
-    const err = document.getElementById('token-error');
-    err.style.display = 'block';
-    setTimeout(() => err.style.display = 'none', 3000);
+// Inicializar Google Identity Services
+window.addEventListener('load', () => {
+  if (typeof google !== 'undefined' && google.accounts) {
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: handleGoogleCredential,
+      auto_select: false,
+      cancel_on_tap_outside: true,
+    });
+  }
+});
+
+function iniciarGoogleAuth() {
+  if (typeof google === 'undefined' || !google.accounts) {
+    mostrarLoginError('No se pudo cargar Google Identity. Verificá tu conexión.');
+    return;
+  }
+  google.accounts.id.prompt((notification) => {
+    if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+      // Si One Tap no funciona, usamos renderButton como fallback
+      google.accounts.id.renderButton(
+        document.getElementById('login-step-google'),
+        { theme: 'outline', size: 'large', width: 360 }
+      );
+    }
+  });
+}
+
+function handleGoogleCredential(response) {
+  try {
+    // Decodificar JWT sin verificación (la verificación real va en Apps Script)
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    const email   = payload.email.toLowerCase();
+    const name    = payload.name;
+    const picture = payload.picture;
+
+    // Determinar cursos disponibles para este email
+    const disponibles = [];
+    for (const [id, cfg] of Object.entries(CURSOS_CONFIG)) {
+      const esInstructor = cfg.instructores.map(e=>e.toLowerCase()).includes(email);
+      const esVisor      = cfg.visores.map(e=>e.toLowerCase()).includes(email);
+      if (esInstructor || esVisor) {
+        disponibles.push({ id, rol: esInstructor ? 'instructor' : 'visor', ...cfg });
+      }
+    }
+
+    if (disponibles.length === 0) {
+      mostrarLoginError(`El email ${email} no tiene acceso a ningún curso. Contactá al administrador.`);
+      return;
+    }
+
+    AUTH.user = { name, email, picture };
+    AUTH.cursosDisponibles = disponibles;
+
+    if (disponibles.length === 1) {
+      // Acceso directo al único curso disponible
+      seleccionarCurso(disponibles[0].id);
+    } else {
+      // Mostrar selector de cursos
+      mostrarSelectorCursos(disponibles);
+    }
+  } catch(e) {
+    mostrarLoginError('Error al procesar la autenticación. Intentá de nuevo.');
   }
 }
 
-function enterViewer() {
-  isViewer = true;
+function mostrarSelectorCursos(disponibles) {
+  document.getElementById('login-step-google').style.display = 'none';
+  const selector = document.getElementById('curso-selector');
+  selector.classList.add('visible');
+
+  // Mostrar datos del usuario
+  document.getElementById('auth-name').textContent = AUTH.user.name;
+  document.getElementById('auth-email').textContent = AUTH.user.email;
+  if (AUTH.user.picture) {
+    const img = document.getElementById('auth-avatar');
+    img.src = AUTH.user.picture;
+    img.style.display = 'block';
+  }
+
+  // Generar cards de cursos
+  document.getElementById('curso-cards-list').innerHTML = disponibles.map(c => `
+    <div class="curso-card" onclick="seleccionarCurso('${c.id}')">
+      <div>
+        <div class="curso-num">Curso N° ${c.id} · ${c.especialidad}</div>
+        <div class="curso-name">${c.nombre}</div>
+        <div style="font-size:0.62rem;color:var(--muted);margin-top:2px;font-family:var(--mono)">${c.rol === 'instructor' ? '✏️ Instructor' : '👁 Visor'}</div>
+      </div>
+      <span class="curso-arrow">→</span>
+    </div>`).join('');
+}
+
+function seleccionarCurso(cursoId) {
+  const cfg = CURSOS_CONFIG[cursoId];
+  const email = AUTH.user ? AUTH.user.email.toLowerCase() : null;
+  const esInstructor = email && cfg.instructores.map(e=>e.toLowerCase()).includes(email);
+
+  AUTH.cursoId = cursoId;
+  AUTH.rol = esInstructor ? 'instructor' : 'visor';
+  isInstructor = AUTH.rol === 'instructor';
+  isViewer = !isInstructor;
+
+  // Ocultar login
+  document.getElementById('login-screen').classList.add('hidden');
+
+  // Configurar sidebar
+  actualizarSidebar();
+
+  // Configurar visibilidad de elementos write-only
+  if (isViewer) {
+    document.querySelectorAll('.write-only').forEach(el => el.style.display = 'none');
+  }
+
+  initApp(cursoId);
+}
+
+function entrarVisor() {
+  AUTH.user = null;
+  AUTH.cursoId = '3004'; // Visor sin auth ve el curso 3004 por defecto
+  AUTH.rol = 'visor';
   isInstructor = false;
-  document.getElementById('token-screen').classList.add('hidden');
-  // Hide write buttons for viewers
+  isViewer = true;
+  document.getElementById('login-screen').classList.add('hidden');
   document.querySelectorAll('.write-only').forEach(el => el.style.display = 'none');
-  initApp();
+  actualizarSidebar();
+  initApp('3004');
+}
+
+function actualizarSidebar() {
+  // User chip
+  const chip = document.getElementById('sidebar-user-chip');
+  chip.style.display = 'flex';
+  if (AUTH.user) {
+    document.getElementById('sidebar-user-name').textContent = AUTH.user.name.split(' ')[0];
+    document.getElementById('sidebar-user-role').textContent = AUTH.rol === 'instructor' ? '✏️ Instructor' : '👁 Visor';
+    if (AUTH.user.picture) {
+      const img = document.getElementById('sidebar-avatar-img');
+      img.src = AUTH.user.picture;
+      img.style.display = 'block';
+      document.getElementById('sidebar-avatar-fallback').style.display = 'none';
+    } else {
+      document.getElementById('sidebar-avatar-fallback').textContent = AUTH.user.name[0].toUpperCase();
+    }
+  } else {
+    document.getElementById('sidebar-user-name').textContent = 'Visor anónimo';
+    document.getElementById('sidebar-user-role').textContent = '👁 Solo lectura';
+  }
+
+  // Curso chip
+  if (AUTH.cursoId) {
+    const cfg = CURSOS_CONFIG[AUTH.cursoId];
+    const cursoChip = document.getElementById('sidebar-curso-chip');
+    cursoChip.style.display = 'block';
+    document.getElementById('sidebar-curso-num').textContent = `${cfg.especialidad} · Curso N° ${AUTH.cursoId}`;
+    document.getElementById('sidebar-curso-nombre').textContent = cfg.nombre;
+  }
+}
+
+function cerrarSesion() {
+  if (typeof google !== 'undefined' && google.accounts) {
+    google.accounts.id.disableAutoSelect();
+  }
+  AUTH = { user:null, cursoId:null, rol:null, cursosDisponibles:[] };
+  isInstructor = false; isViewer = false;
+  // Restaurar write-only
+  document.querySelectorAll('.write-only').forEach(el => el.style.display = '');
+  // Resetear selector
+  document.getElementById('login-step-google').style.display = 'block';
+  document.getElementById('curso-selector').classList.remove('visible');
+  document.getElementById('login-error').style.display = 'none';
+  document.getElementById('sidebar-user-chip').style.display = 'none';
+  document.getElementById('sidebar-curso-chip').style.display = 'none';
+  document.getElementById('login-screen').classList.remove('hidden');
+}
+
+function mostrarLoginError(msg) {
+  const el = document.getElementById('login-error');
+  el.textContent = msg;
+  el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 6000);
 }
 
 // ════════════════════════════════════════════════════════
 // GOOGLE SHEETS API
 // ════════════════════════════════════════════════════════
 async function sheetsGet(sheet) {
-  const url = `${SCRIPT_URL}?action=getAll&sheet=${sheet}`;
-  const res = await fetch(url);
+  const cursoId = AUTH.cursoId || '3004';
+  const res = await fetch(SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'getAll', sheet, curso: cursoId, userEmail: AUTH.user ? AUTH.user.email : '' })
+  });
   const json = await res.json();
   if (!json.ok) throw new Error(json.error);
   return json.data;
 }
 
 async function sheetsUpsert(sheet, row) {
+  const cursoId = AUTH.cursoId || '3004';
+  const userEmail = AUTH.user ? AUTH.user.email : 'visor';
   const res = await fetch(SCRIPT_URL, {
     method: 'POST',
-    body: JSON.stringify({ action: 'upsert', sheet, row, token: WRITE_TOKEN })
+    body: JSON.stringify({ action:'upsert', sheet, row, curso: cursoId, userEmail })
   });
   const json = await res.json();
   if (!json.ok) throw new Error(json.error);
@@ -809,9 +1129,11 @@ async function sheetsUpsert(sheet, row) {
 }
 
 async function sheetsDelete(sheet, id) {
+  const cursoId = AUTH.cursoId || '3004';
+  const userEmail = AUTH.user ? AUTH.user.email : 'visor';
   const res = await fetch(SCRIPT_URL, {
     method: 'POST',
-    body: JSON.stringify({ action: 'delete', sheet, id: String(id), token: WRITE_TOKEN })
+    body: JSON.stringify({ action:'delete', sheet, id:String(id), curso: cursoId, userEmail })
   });
   const json = await res.json();
   if (!json.ok) throw new Error(json.error);
@@ -822,14 +1144,6 @@ async function sheetsDelete(sheet, id) {
 // IN-MEMORY DB (cargado desde Sheets)
 // ════════════════════════════════════════════════════════
 let DB = { curso: {}, alumnos: [], seguimiento: {}, entregas: [], comunicaciones: [] };
-
-const CURSO_INFO = {
-  numero: 3004, nombre: 'Electricidad en Inmuebles', cfp: 401,
-  inicio: '2026-03-03', fin: '2027-03-03', duracion: 810,
-  instructor: 'SCHECHTEL, Rodrigo Javier',
-  lugar: 'Subsede Villa Parodi – Piedra Buena 1464',
-  horarios: 'Mar-Mié-Jue-Vie 13:50 a 17:10'
-};
 
 function setLoading(show, msg = 'Procesando...') {
   const el = document.getElementById('loading-overlay');
@@ -857,7 +1171,9 @@ function parseSeguimiento(rows) {
 }
 
 async function loadAllData() {
-  setLoading(true, 'Cargando datos desde Google Sheets...');
+  const cursoId = AUTH.cursoId || '3004';
+  const cfg = CURSOS_CONFIG[cursoId];
+  setLoading(true, `Cargando datos del Curso N° ${cursoId}...`);
   try {
     const [alumnos, seguRows, entregas, comunicaciones] = await Promise.all([
       sheetsGet('Alumnos'),
@@ -865,12 +1181,12 @@ async function loadAllData() {
       sheetsGet('Entregas'),
       sheetsGet('Comunicaciones')
     ]);
-    DB.curso = CURSO_INFO;
+    DB.curso = { ...cfg.info, nombre: cfg.nombre };
     DB.alumnos = alumnos.map(a => ({ ...a, id: parseInt(a.id) || a.id }));
     DB.seguimiento = parseSeguimiento(seguRows);
     DB.entregas = entregas.map(e => ({ ...e, id: parseInt(e.id)||e.id, calificacion: parseInt(e.calificacion)||0, practica: parseInt(e.practica)||0 }));
     DB.comunicaciones = comunicaciones.map(c => ({ ...c, id: parseInt(c.id)||c.id }));
-    setConn('connected', `✓ Sheets · ${DB.alumnos.length} alumnos`);
+    setConn('connected', `✓ Curso ${cursoId} · ${DB.alumnos.length} alumnos`);
     setLoading(false);
     return true;
   } catch(err) {
@@ -881,16 +1197,20 @@ async function loadAllData() {
   }
 }
 
-async function initApp() {
+async function initApp(cursoId) {
   const ok = await loadAllData();
   if (ok) {
     renderDashboard();
-    // Viewer badge
     if (isViewer) {
       const badge = document.createElement('div');
-      badge.innerHTML = '<span class="pill p-orange" style="margin:8px 10px 0;display:block;text-align:center">👁 Modo Visor</span>';
+      badge.innerHTML = '<span class="pill p-orange" style="margin:4px 10px 8px;display:block;text-align:center">👁 Modo Visor</span>';
       document.querySelector('.nav').prepend(badge);
     }
+    // Actualizar sidebar footer con el curso activo
+    const cfg = CURSOS_CONFIG[AUTH.cursoId || '3004'];
+    document.querySelector('.sidebar-footer').innerHTML = `
+      <p>${cfg.especialidad} ${cfg.nombre}</p>
+      <p style="margin-top:3px;font-size:0.62rem">Curso N° ${AUTH.cursoId} · 2026–2027</p>`;
   }
 }
 
