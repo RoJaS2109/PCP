@@ -38,6 +38,7 @@ body::before {
 .sidebar-logo {
   padding: 22px 20px 18px;
   border-bottom: 1px solid var(--border);
+  text-align: center;
 }
 .sidebar-logo .bolt { font-size: 28px; filter: drop-shadow(0 0 12px rgba(240,165,0,0.5)); }
 .sidebar-logo h2 { font-size: 0.85rem; font-weight: 700; letter-spacing: -0.01em; margin-top: 6px; }
@@ -59,7 +60,7 @@ body::before {
   margin-left: auto; background: var(--red); color: #fff;
   font-size: 0.6rem; font-family: var(--mono); padding: 1px 6px; border-radius: 10px;
 }
-.sidebar-footer { padding: 14px 20px; border-top: 1px solid var(--border); }
+.sidebar-footer { padding: 14px 20px; border-top: 1px solid var(--border); text-align: center; }
 .sidebar-footer p { font-size: 0.65rem; color: var(--muted); font-family: var(--mono); }
 
 /* MAIN */
@@ -115,13 +116,10 @@ tr:last-child td { border-bottom: none; }
 
 /* WEEK CELLS */
 .wc { display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;font-size:0.6rem;font-weight:700;font-family:var(--mono); }
-.wc-C{background:rgba(63,185,80,0.2);color:var(--green);border:1px solid rgba(63,185,80,0.35)}
-.wc-E{background:rgba(88,166,255,0.15);color:var(--accent2);border:1px solid rgba(88,166,255,0.3)}
-.wc-P{background:rgba(188,140,255,0.15);color:var(--purple);border:1px solid rgba(188,140,255,0.3)}
+.wc-C{background:rgba(188,140,255,0.15);color:var(--purple);border:1px solid rgba(188,140,255,0.3)}
 .wc-NC{background:rgba(248,81,73,0.2);color:var(--red);border:1px solid rgba(248,81,73,0.4);animation:pulseRed 2s infinite}
-.wc-V{background:rgba(57,211,195,0.12);color:var(--teal);border:1px solid rgba(57,211,195,0.25)}
-.wc-A{background:rgba(210,153,34,0.15);color:var(--orange);border:1px solid rgba(210,153,34,0.3)}
-.wc-B{background:rgba(240,165,0,0.12);color:var(--accent);border:1px solid rgba(240,165,0,0.25)}
+.wc-A{background:rgba(248,81,73,0.15);color:var(--red);border:1px solid rgba(248,81,73,0.3)}
+.wc-B{background:rgba(88,166,255,0.15);color:var(--accent2);border:1px solid rgba(88,166,255,0.3)}
 .wc-empty{background:transparent;border:1px dashed rgba(48,54,61,0.5);color:rgba(48,54,61,0.5)}
 @keyframes pulseRed{0%,100%{box-shadow:0 0 0 0 rgba(248,81,73,0.4)}50%{box-shadow:0 0 0 4px rgba(248,81,73,0)}}
 
@@ -366,7 +364,7 @@ tr:last-child td { border-bottom: none; }
   margin:0 10px 4px; padding:8px 12px; border-radius:8px;
   background:rgba(240,165,0,0.08); border:1px solid rgba(240,165,0,0.2);
   font-size:0.65rem; font-family:var(--mono); color:var(--accent);
-  text-align:center; line-height:1.5;
+  text-align:center; line-height:1.6;
 }
 
 .login-error { font-size:0.72rem; color:var(--red); margin-top:12px; display:none; padding:8px 12px; background:rgba(248,81,73,0.08); border-radius:8px; border:1px solid rgba(248,81,73,0.2); }
@@ -458,7 +456,7 @@ tr:last-child td { border-bottom: none; }
     </div>
     <div id="conn-bar" class="conn-bar loading">
       <span class="conn-dot"></span>
-      <span id="conn-text">Conectando...</span>
+      <div id="conn-text" style="line-height:1.4">Conectando...</div>
     </div>
     <div class="nav-group">
       <div class="nav-label">Principal</div>
@@ -500,8 +498,8 @@ tr:last-child td { border-bottom: none; }
     -->
   </nav>
   <div class="sidebar-footer">
-    <p>⚡ Electricidad en Inmuebles</p>
-    <p style="margin-top:3px">Curso Nº 3004 · 2026–2027</p>
+    <p id="footer-curso-nombre"></p>
+    <p id="footer-curso-num" style="margin-top:3px"></p>
   </div>
 </aside>
 
@@ -580,14 +578,15 @@ tr:last-child td { border-bottom: none; }
   <div class="header-row">
     <div class="page-header"><h1>Seguimiento Semanal PCP</h1><p>Estado semana a semana por alumno</p></div>
   </div>
-  <div class="legend-bar">
-    <span class="leg"><span class="leg-dot" style="background:var(--green)"></span>C – Con PCP</span>
-    <span class="leg"><span class="leg-dot" style="background:var(--accent2)"></span>E – Egresó</span>
-    <span class="leg"><span class="leg-dot" style="background:var(--purple)"></span>P – En proceso</span>
+  <div class="legend-bar" style="flex-wrap:wrap;gap:8px">
+    <span class="leg"><span class="leg-dot" style="background:var(--purple)"></span>C – Con PCP</span>
     <span class="leg"><span class="leg-dot" style="background:var(--red)"></span>NC – Sin contacto</span>
-    <span class="leg"><span class="leg-dot" style="background:var(--teal)"></span>V – Vacaciones</span>
-    <span class="leg"><span class="leg-dot" style="background:var(--orange)"></span>A – Abandonó</span>
-    <span class="leg"><span class="leg-dot" style="background:var(--accent)"></span>B – Buen avance</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--red)"></span>A – Abandonó</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--accent2)"></span>B – Buen avance</span>
+    <div style="margin-left:auto;display:flex;gap:6px">
+      <button id="btn-sem1" class="btn btn-primary btn-sm" onclick="setSemestre(1)" style="font-size:0.72rem;padding:5px 12px">1er Semestre</button>
+      <button id="btn-sem2" class="btn btn-sm" onclick="setSemestre(2)" style="font-size:0.72rem;padding:5px 12px;background:var(--surface2);border:1px solid var(--border);color:var(--muted)">2do Semestre</button>
+    </div>
   </div>
   <div class="card" style="padding:0">
     <div class="table-wrap" id="tabla-seguimiento"></div>
@@ -847,10 +846,10 @@ const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbznZpV0hozVNJZFuVD5z
 const CURSOS_CONFIG = {
   '3004': {
     nombre:        'Electricista en Inmuebles',
-    especialidad:  '⚡ Electricidad',
+    icono:         '⚡',
     instructores:  ['rojas2109@gmail.com', 'mis.cursos.de.fp@gmail.com'],
     visores:       ['carlorodriguez@abc.gob.ar', 'nchimento@abc.gob.ar', 'marimendez@abc.gob.ar'],
-    spreadsheetId: '1bKL3LwbDFhqTsLhM9yiMJn5bqjCbmHe7QVhZ3X9pRsY', // Curso 3004 — reemplazar con ID real
+    spreadsheetId: '1bKL3LwbDFhqTsLhM9yiMJn5bqjCbmHe7QVhZ3X9pRsY',
     info: {
       numero: 3004, cfp: 401,
       inicio: '2026-03-03', fin: '2027-03-03', duracion: 810,
@@ -861,7 +860,7 @@ const CURSOS_CONFIG = {
   },
   '2946': {
     nombre:        'Electricista Industrial',
-    especialidad:  '🏭 Industrial',
+    icono:         '🏭',
     instructores:  ['rojas2109@gmail.com', 'mis.cursos.de.fp@gmail.com'],
     visores:       ['carlorodriguez@abc.gob.ar', 'nchimento@abc.gob.ar', 'marimendez@abc.gob.ar'],
     spreadsheetId: '1-aU7MI5_Oq5NxjJronx_xYtUYoJ29B8rhhukTw82qJE',
@@ -875,7 +874,7 @@ const CURSOS_CONFIG = {
   },
   '3054': {
     nombre:        'Robótica y Automatización',
-    especialidad:  '🤖 Robótica',
+    icono:         '🤖',
     instructores:  ['rodrigoschechtel@abc.gob.ar', 'mis.cursos.de.fp@gmail.com'],
     visores:       ['carlorodriguez@abc.gob.ar', 'nchimento@abc.gob.ar', 'marimendez@abc.gob.ar'],
     spreadsheetId: '1NR6zh1FCLlLEPxysXCzC3Xji_M-9wb5ZH-ZAlVBzEuE',
@@ -889,7 +888,7 @@ const CURSOS_CONFIG = {
   },
   '3055': {
     nombre:        'Programador de Automatización y Robótica',
-    especialidad:  '💻 Programación',
+    icono:         '💻',
     instructores:  ['rodrigoschechtel@abc.gob.ar', 'mis.cursos.de.fp@gmail.com'],
     visores:       ['carlorodriguez@abc.gob.ar', 'nchimento@abc.gob.ar', 'marimendez@abc.gob.ar'],
     spreadsheetId: '1PgX5CPiYOaM72ZlTKCJgqNlpVIybTpDwgliMcKwBkSI',
@@ -999,8 +998,8 @@ function mostrarSelectorCursos(disponibles) {
   document.getElementById('curso-cards-list').innerHTML = disponibles.map(c => `
     <div class="curso-card" onclick="seleccionarCurso('${c.id}')">
       <div>
-        <div class="curso-num">Curso N° ${c.id} · ${c.especialidad}</div>
-        <div class="curso-name">${c.nombre}</div>
+        <div class="curso-num">Curso N° ${c.id}</div>
+        <div class="curso-name">${c.icono} ${c.nombre}</div>
         <div style="font-size:0.62rem;color:var(--muted);margin-top:2px;font-family:var(--mono)">${c.rol === 'instructor' ? '✏️ Instructor' : '👁 Visor'}</div>
       </div>
       <span class="curso-arrow">→</span>
@@ -1016,6 +1015,7 @@ function seleccionarCurso(cursoId) {
   AUTH.rol = esInstructor ? 'instructor' : 'visor';
   isInstructor = AUTH.rol === 'instructor';
   isViewer = !isInstructor;
+  semestreActivo = 1; // resetear al 1er semestre al cambiar de curso
 
   // Ocultar login
   document.getElementById('login-screen').classList.add('hidden');
@@ -1048,8 +1048,8 @@ function actualizarSidebar() {
   const chip = document.getElementById('sidebar-user-chip');
   chip.style.display = 'flex';
   if (AUTH.user) {
-    document.getElementById('sidebar-user-name').textContent = AUTH.user.name.split(' ')[0];
-    document.getElementById('sidebar-user-role').textContent = AUTH.rol === 'instructor' ? '✏️ Instructor' : '👁 Visor';
+    document.getElementById('sidebar-user-name').textContent = AUTH.rol === 'instructor' ? AUTH.user.name.split(' ')[0] + ' ✏️' : AUTH.user.name.split(' ')[0] + ' 👁';
+    document.getElementById('sidebar-user-role').textContent = AUTH.rol === 'instructor' ? 'Instructor' : 'Visor';
     if (AUTH.user.picture) {
       const img = document.getElementById('sidebar-avatar-img');
       img.src = AUTH.user.picture;
@@ -1068,8 +1068,8 @@ function actualizarSidebar() {
     const cfg = CURSOS_CONFIG[AUTH.cursoId];
     const cursoChip = document.getElementById('sidebar-curso-chip');
     cursoChip.style.display = 'block';
-    document.getElementById('sidebar-curso-num').textContent = `${cfg.especialidad} · Curso N° ${AUTH.cursoId}`;
-    document.getElementById('sidebar-curso-nombre').textContent = cfg.nombre;
+    document.getElementById('sidebar-curso-num').textContent = `Curso N° ${AUTH.cursoId}`;
+    document.getElementById('sidebar-curso-nombre').textContent = `${cfg.icono} ${cfg.nombre}`;
   }
 }
 
@@ -1138,7 +1138,8 @@ async function sheetsDelete(sheet, id) {
 // ════════════════════════════════════════════════════════
 // IN-MEMORY DB (cargado desde Sheets)
 // ════════════════════════════════════════════════════════
-let DB = { curso: {}, alumnos: [], seguimiento: {}, entregas: [], comunicaciones: [] };
+let DB = { curso: {}, alumnos: [], seguimiento: {}, seguimiento2: {}, entregas: [], comunicaciones: [] };
+let semestreActivo = 1; // 1 o 2
 
 function setLoading(show, msg = 'Procesando...') {
   const el = document.getElementById('loading-overlay');
@@ -1149,15 +1150,16 @@ function setLoading(show, msg = 'Procesando...') {
 function setConn(state, text) {
   const bar = document.getElementById('conn-bar');
   bar.className = 'conn-bar ' + state;
-  document.getElementById('conn-text').textContent = text;
+  document.getElementById('conn-text').innerHTML = text;
 }
 
 // Convertir fila de seguimiento (cols sem1..sem10) a objeto {id: {sem1:..}}
-function parseSeguimiento(rows) {
+function parseSeguimiento(rows, semBase) {
+  // semBase=1 → sem1..sem20, semBase=21 → sem21..sem40
   const out = {};
   rows.forEach(r => {
     const sems = {};
-    for (let i = 1; i <= 10; i++) {
+    for (let i = semBase; i <= semBase + 19; i++) {
       if (r[`sem${i}`]) sems[`sem${i}`] = r[`sem${i}`];
     }
     out[r.id] = sems;
@@ -1170,18 +1172,20 @@ async function loadAllData() {
   const cfg = CURSOS_CONFIG[cursoId];
   setLoading(true, `Cargando datos del Curso N° ${cursoId}...`);
   try {
-    const [alumnos, seguRows, entregas, comunicaciones] = await Promise.all([
+    const [alumnos, seguRows, segRows2, entregas, comunicaciones] = await Promise.all([
       sheetsGet('Alumnos'),
-      sheetsGet('Seguimiento'),
+      sheetsGet('1er. Semestre'),
+      sheetsGet('2do. Semestre'),
       sheetsGet('Entregas'),
       sheetsGet('Comunicaciones')
     ]);
     DB.curso = { ...cfg.info, nombre: cfg.nombre };
     DB.alumnos = alumnos.map(a => ({ ...a, id: parseInt(a.id) || a.id }));
-    DB.seguimiento = parseSeguimiento(seguRows);
+    DB.seguimiento  = parseSeguimiento(seguRows,  1);
+    DB.seguimiento2 = parseSeguimiento(segRows2, 21);
     DB.entregas = entregas.map(e => ({ ...e, id: parseInt(e.id)||e.id, calificacion: parseInt(e.calificacion)||0, practica: parseInt(e.practica)||0 }));
     DB.comunicaciones = comunicaciones.map(c => ({ ...c, id: parseInt(c.id)||c.id }));
-    setConn('connected', `✓ Curso ${cursoId} · ${DB.alumnos.length} alumnos`);
+    setConn('connected', `✓ Curso ${cursoId}<br>${DB.alumnos.length} alumnos`);
     setLoading(false);
     return true;
   } catch(err) {
@@ -1203,9 +1207,8 @@ async function initApp(cursoId) {
     }
     // Actualizar sidebar footer con el curso activo
     const cfg = CURSOS_CONFIG[AUTH.cursoId || '3004'];
-    document.querySelector('.sidebar-footer').innerHTML = `
-      <p>${cfg.especialidad} ${cfg.nombre}</p>
-      <p style="margin-top:3px;font-size:0.62rem">Curso N° ${AUTH.cursoId} · 2026–2027</p>`;
+    document.getElementById('footer-curso-nombre').textContent = `${cfg.icono} ${cfg.nombre}`;
+    document.getElementById('footer-curso-num').textContent = `Curso N° ${AUTH.cursoId} · 2026–2027`;
   }
 }
 
@@ -1647,20 +1650,37 @@ async function deleteAlumno(id) {
 // SEGUIMIENTO SEMANAL
 // ════════════════════════════════════════════════════════
 let segEditing = null;
+function setSemestre(n) {
+  semestreActivo = n;
+  // Actualizar estilos de botones
+  const s = n === 1;
+  document.getElementById('btn-sem1').className = `btn btn-sm ${s ? 'btn-primary' : ''}`;
+  document.getElementById('btn-sem1').style.cssText = s
+    ? 'font-size:0.72rem;padding:5px 12px'
+    : 'font-size:0.72rem;padding:5px 12px;background:var(--surface2);border:1px solid var(--border);color:var(--muted)';
+  document.getElementById('btn-sem2').className = `btn btn-sm ${!s ? 'btn-primary' : ''}`;
+  document.getElementById('btn-sem2').style.cssText = !s
+    ? 'font-size:0.72rem;padding:5px 12px'
+    : 'font-size:0.72rem;padding:5px 12px;background:var(--surface2);border:1px solid var(--border);color:var(--muted)';
+  renderSeguimiento();
+}
+
 function renderSeguimiento() {
-  const cols = 10; // show 10 weeks
+  const semBase = semestreActivo === 1 ? 1 : 21;
+  const semFin  = semBase + 19;
+  const segData = semestreActivo === 1 ? DB.seguimiento : DB.seguimiento2;
   let html = `<table><thead><tr>
     <th style="position:sticky;left:0;background:var(--surface);z-index:2">#</th>
     <th style="position:sticky;left:30px;background:var(--surface);z-index:2;min-width:160px">Alumno</th>`;
-  for(let i=1;i<=cols;i++) html += `<th>Sem ${i}</th>`;
+  for(let i=semBase; i<=semFin; i++) html += `<th>Sem ${i}</th>`;
   html += `<th>Acciones</th></tr></thead><tbody>`;
   DB.alumnos.forEach(a => {
-    const seg = DB.seguimiento[a.id]||{};
+    const seg = segData[a.id] || {};
     html += `<tr>
       <td style="position:sticky;left:0;background:var(--surface);font-family:var(--mono);font-size:0.65rem;color:var(--muted)">${a.id}</td>
       <td style="position:sticky;left:30px;background:var(--surface);font-size:0.78rem;white-space:nowrap">${a.nombre}</td>`;
-    for(let i=1;i<=cols;i++) {
-      const v = seg[`sem${i}`]||'';
+    for(let i=semBase; i<=semFin; i++) {
+      const v = seg[`sem${i}`] || '';
       html += `<td><span class="wc ${v?'wc-'+v:'wc-empty'}" data-tip="${v||'—'}">${v||'·'}</span></td>`;
     }
     html += `<td>${isInstructor ? `<button class="btn btn-ghost btn-sm" onclick="openSegModal(${a.id})">✏️</button>` : ''}</td></tr>`;
@@ -1672,18 +1692,22 @@ function renderSeguimiento() {
 function openSegModal(id) {
   segEditing = id;
   const a = DB.alumnos.find(x=>x.id===id);
-  const seg = DB.seguimiento[id]||{};
-  const cols = ['C','E','P','NC','V','A','B'];
-  let html = `<p style="font-size:0.82rem;margin-bottom:14px;font-weight:600">${a.nombre}</p>`;
-  for(let i=1;i<=10;i++) {
-    const v = seg[`sem${i}`]||'';
+  const semBase = semestreActivo === 1 ? 1 : 21;
+  const semFin  = semBase + 19;
+  const segData = semestreActivo === 1 ? DB.seguimiento : DB.seguimiento2;
+  const seg = segData[id] || {};
+  const cols = ['C','NC','A','B'];
+  let html = `<p style="font-size:0.82rem;margin-bottom:4px;font-weight:600">${a.nombre}</p>
+    <p style="font-size:0.65rem;color:var(--muted);margin-bottom:14px;font-family:var(--mono)">${semestreActivo === 1 ? '1er Semestre · Sem 1–20' : '2do Semestre · Sem 21–40'}</p>`;
+  for(let i=semBase; i<=semFin; i++) {
+    const v = seg[`sem${i}`] || '';
     html += `<div style="display:flex;align-items:center;gap:10px;margin-bottom:8px">
-      <span style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);min-width:50px">Sem ${i}</span>
+      <span style="font-family:var(--mono);font-size:0.7rem;color:var(--muted);min-width:52px">Sem ${i}</span>
       <select id="seg-sem-${i}" style="background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 8px;color:var(--text);font-size:0.78rem;outline:none">
         <option value="">—</option>
         ${cols.map(c=>`<option value="${c}" ${v===c?'selected':''}>${c}</option>`).join('')}
       </select>
-      ${v?`<span class="wc wc-${v}">${v}</span>`:''}
+      ${v ? `<span class="wc wc-${v}">${v}</span>` : ''}
     </div>`;
   }
   document.getElementById('modal-seg-body').innerHTML = html;
@@ -1693,17 +1717,22 @@ function openSegModal(id) {
 async function saveSeguimiento() {
   if (!segEditing || !isInstructor) return;
   const al = DB.alumnos.find(x=>x.id===segEditing);
+  const semBase   = semestreActivo === 1 ? 1 : 21;
+  const semFin    = semBase + 19;
+  const sheetName = semestreActivo === 1 ? '1er. Semestre' : '2do. Semestre';
+  const segData   = semestreActivo === 1 ? DB.seguimiento : DB.seguimiento2;
+
   const seg = { id: segEditing, nombre: al ? al.nombre : '' };
-  for(let i=1;i<=10;i++) {
+  for(let i=semBase; i<=semFin; i++) {
     seg[`sem${i}`] = document.getElementById(`seg-sem-${i}`)?.value || '';
   }
   setLoading(true, 'Guardando seguimiento...');
   try {
-    await sheetsUpsert('Seguimiento', seg);
+    await sheetsUpsert(sheetName, seg);
     const clean = {};
-    for(let i=1;i<=10;i++) { if(seg[`sem${i}`]) clean[`sem${i}`] = seg[`sem${i}`]; }
-    DB.seguimiento[segEditing] = clean;
-    toast('Seguimiento guardado en Sheets ✓', 'success');
+    for(let i=semBase; i<=semFin; i++) { if(seg[`sem${i}`]) clean[`sem${i}`] = seg[`sem${i}`]; }
+    segData[segEditing] = clean;
+    toast(`Seguimiento (${semestreActivo === 1 ? '1er' : '2do'} semestre) guardado ✓`, 'success');
   } catch(err) { toast('Error: ' + err.message, 'error'); }
   setLoading(false);
   closeModal('modal-seg');
