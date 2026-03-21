@@ -648,13 +648,13 @@ tr:last-child td { border-bottom: none; }
         <div class="field"><label>Email</label><input type="email" id="f-email" placeholder="correo@ejemplo.com"></div>
         <div class="field"><label>Estado Actual</label>
           <select id="f-estado">
-            <option>Trayectorias Continuas</option><option>Bajo PCP</option><option>Reinserción lograda</option>
+            <option>Trayectoria Continua</option><option>Bajo PCP</option><option>Reinserción lograda</option>
             <option>Deserción no recuperada</option><option>Egresó</option>
           </select>
         </div>
         <div class="field"><label>Motivo de Activación</label>
           <select id="f-motivo">
-            <option>Alumno Regular</option><option>Enfermedad</option><option>Razones laborales</option>
+            <option value="">—</option><option>Enfermedad</option><option>Razones laborales</option>
             <option>Emergencia familiar</option><option>Otro</option>
           </select>
         </div>
@@ -1284,7 +1284,7 @@ function toggleSidebar() { document.getElementById('sidebar').classList.toggle('
 // HELPERS
 // ════════════════════════════════════════════════════════
 function estadoPill(e) {
-  const m = {'Trayectorias Continuas':'p-blue','Bajo PCP':'p-purple','Reinserción lograda':'p-teal','Deserción no recuperada':'p-red','Egresó':'p-green'};
+  const m = {'Trayectoria Continua':'p-blue','Bajo PCP':'p-purple','Reinserción lograda':'p-teal','Deserción no recuperada':'p-red','Egresó':'p-green'};
   return `<span class="pill ${m[e]||'p-muted'}">${e}</span>`;
 }
 function notaScore(n) {
@@ -1393,7 +1393,7 @@ function renderDashboard() {
   a.forEach(al => { estados[al.estado] = (estados[al.estado]||0)+1; });
   const pcp = (estados['Bajo PCP']||0) + (estados['Reinserción lograda']||0) + (estados['Con PCP']||0) + (estados['Reincorporado']||0);
   const abandonados = (estados['Deserción no recuperada']||0) + (estados['Abandonó']||0);
-  const regulares = (estados['Trayectorias Continuas']||0) + (estados['Regular']||0);
+  const regulares = (estados['Trayectoria Continua']||0) + (estados['Regular']||0);
   const entregaron = e.filter(x=>x.entrego==='Si').length;
   const notas = e.filter(x=>parseInt(x.calificacion)>0).map(x=>parseInt(x.calificacion));
   const promedio = notas.length ? Math.round(notas.reduce((a,b)=>a+b,0)/notas.length) : 0;
@@ -1403,7 +1403,7 @@ function renderDashboard() {
   document.getElementById('kpi-grid').innerHTML = `
     <div class="kpi c-blue"><div class="kpi-label">Total Alumnos</div><div class="kpi-value" style="color:var(--accent2)">${a.length}</div><div class="kpi-sub">Curso ${c.numero}</div></div>
     <div class="kpi c-purple"><div class="kpi-label">Bajo PCP</div><div class="kpi-value" style="color:var(--purple)">${pcp}</div><div class="kpi-sub">${Math.round(pcp/total*100)}% del curso</div></div>
-    <div class="kpi c-green"><div class="kpi-label">Trayectorias Continuas</div><div class="kpi-value" style="color:var(--green)">${regulares}</div><div class="kpi-sub">Sin PCP activo</div></div>
+    <div class="kpi c-green"><div class="kpi-label">Trayectoria Continua</div><div class="kpi-value" style="color:var(--green)">${regulares}</div><div class="kpi-sub">Sin PCP activo</div></div>
     <div class="kpi c-red"><div class="kpi-label">Deserción no recuperada</div><div class="kpi-value" style="color:var(--red)">${abandonados}</div><div class="kpi-sub">${Math.round(abandonados/total*100)}% del curso</div></div>
     <div class="kpi c-gold"><div class="kpi-label">Promedio Notas</div><div class="kpi-value" style="color:var(--accent)">${promedio}</div><div class="kpi-sub">/ 100 puntos</div></div>
     <div class="kpi c-teal"><div class="kpi-label">Entregas Recibidas</div><div class="kpi-value" style="color:var(--teal)">${entregaron}</div><div class="kpi-sub">de ${e.length} totales</div></div>`;
@@ -1429,8 +1429,8 @@ function renderDashboard() {
 
   // ── DONA 2: CONDICIÓN ACADÉMICA ───────────────────────
   const condMap = {
-    'Trayectorias Continuas': { label:'Trayectorias Continuas',  color:'var(--accent2)' },
-    'Regular':                { label:'Trayectorias Continuas',  color:'var(--accent2)' },
+    'Trayectoria Continua': { label:'Trayectoria Continua',  color:'var(--accent2)' },
+    'Regular':                { label:'Trayectoria Continua',  color:'var(--accent2)' },
     'Bajo PCP':               { label:'Bajo PCP',                color:'var(--purple)'  },
     'Con PCP':                { label:'Bajo PCP',                color:'var(--purple)'  },
     'Reinserción lograda':    { label:'Reinserción lograda',      color:'var(--teal)'    },
@@ -1446,11 +1446,11 @@ function renderDashboard() {
     if (cfg) {
       condAgrupado[cfg.label] = (condAgrupado[cfg.label]||0) + 1;
     } else {
-      condAgrupado['Trayectorias Continuas'] = (condAgrupado['Trayectorias Continuas']||0) + 1;
+      condAgrupado['Trayectoria Continua'] = (condAgrupado['Trayectoria Continua']||0) + 1;
     }
   });
   const condColors = {
-    'Trayectorias Continuas': 'var(--accent2)',
+    'Trayectoria Continua': 'var(--accent2)',
     'Bajo PCP':               'var(--purple)',
     'Reinserción lograda':    'var(--teal)',
     'Deserción no recuperada':'var(--red)',
@@ -1550,7 +1550,7 @@ function renderDashboard() {
 // ════════════════════════════════════════════════════════
 let alumnoFilter = 'Todos';
 function renderAlumnos() {
-  const estados = ['Todos','Trayectorias Continuas','Bajo PCP','Reinserción lograda','Deserción no recuperada','Egresó'];
+  const estados = ['Todos','Trayectoria Continua','Bajo PCP','Reinserción lograda','Deserción no recuperada','Egresó'];
   document.getElementById('filter-estado').innerHTML = estados.map(e=>`
     <button class="fbtn ${alumnoFilter===e?'on':''}" onclick="alumnoFilter='${e}';renderAlumnos()">${e}</button>`).join('');
   const q = document.getElementById('search-alumnos')?.value.toLowerCase()||'';
@@ -1624,7 +1624,7 @@ function editAlumno(id) {
   document.getElementById('f-tel').value = a.tel || '';
   document.getElementById('f-email').value = a.email || '';
   document.getElementById('f-estado').value = a.estado;
-  document.getElementById('f-motivo').value = a.motivoActivacion || 'Alumno Regular';
+  document.getElementById('f-motivo').value = a.motivoActivacion || '';
   document.getElementById('f-activacion').value = a.fechaActivacion || '';
   document.getElementById('f-cronograma').value = a.cronograma || '';
   document.getElementById('f-tutoria').value = a.proximaTutoria || '';
@@ -1636,8 +1636,8 @@ function resetAlumnoForm() {
   document.getElementById('edit-alumno-id').value = '';
   ['f-nombre','f-nacimiento','f-dni','f-tel','f-email','f-activacion','f-tutoria','f-obs'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('f-gen').value = 'M';
-  document.getElementById('f-estado').value = 'Trayectorias Continuas';
-  document.getElementById('f-motivo').value = 'Alumno Regular';
+  document.getElementById('f-estado').value = 'Trayectoria Continua';
+  document.getElementById('f-motivo').value = '';
   document.getElementById('f-cronograma').value = '';
 }
 
@@ -2208,7 +2208,7 @@ function abrirVentanaImpresion() {
   const pcp = (estados['Bajo PCP']||0)+(estados['Reinserción lograda']||0)+(estados['Con PCP']||0)+(estados['Reincorporado']||0);
 
   const estadoColores = {
-    'Trayectorias Continuas':'#1a7abf','Regular':'#1a7abf',
+    'Trayectoria Continua':'#1a7abf','Regular':'#1a7abf',
     'Bajo PCP':'#7c3aed','Con PCP':'#7c3aed',
     'Reinserción lograda':'#0d9488','Reincorporado':'#0d9488',
     'Deserción no recuperada':'#dc2626','Abandonó':'#dc2626',
@@ -2218,7 +2218,7 @@ function abrirVentanaImpresion() {
   const kpiHtml = [
     { label:'Total Alumnos', val: a.length, sub: `Curso ${c.numero}`, color:'#1a7abf' },
     { label:'Con PCP Activo', val: pcp, sub: `${Math.round(pcp/a.length*100||0)}% del curso`, color:'#7c3aed' },
-    { label:'Regulares', val: (estados['Trayectorias Continuas']||0)+(estados['Regular']||0), sub:'Sin PCP activo', color:'#16a34a' },
+    { label:'Regulares', val: (estados['Trayectoria Continua']||0)+(estados['Regular']||0), sub:'Sin PCP activo', color:'#16a34a' },
     { label:'Abandonaron', val: (estados['Deserción no recuperada']||0)+(estados['Abandonó']||0), sub:`${Math.round(((estados['Deserción no recuperada']||0)+(estados['Abandonó']||0))/a.length*100||0)}% del curso`, color:'#dc2626' },
     { label:'Promedio Notas', val: promedio, sub:'/ 100 puntos', color:'#b45309' },
     { label:'Entregas Recibidas', val: entregaron, sub:`de ${e.length} totales`, color:'#0d9488' },
