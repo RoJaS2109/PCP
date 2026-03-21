@@ -1624,7 +1624,7 @@ function editAlumno(id) {
   document.getElementById('f-tel').value = a.tel || '';
   document.getElementById('f-email').value = a.email || '';
   document.getElementById('f-estado').value = a.estado;
-  document.getElementById('f-motivo').value = a.motivoActivacion || '';
+  document.getElementById('f-motivo').value = (a.motivoActivacion === 'Alumno Regular' || !a.motivoActivacion) ? '' : a.motivoActivacion;
   document.getElementById('f-activacion').value = a.fechaActivacion || '';
   document.getElementById('f-cronograma').value = a.cronograma || '';
   document.getElementById('f-tutoria').value = a.proximaTutoria || '';
