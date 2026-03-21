@@ -1441,18 +1441,14 @@ function renderDashboard() {
   };
   // Agrupar estados viejos y nuevos bajo la misma etiqueta
   const condAgrupado = {};
-  const estadosDesconocidos = [];
   a.forEach(al => {
     const cfg = condMap[al.estado];
     if (cfg) {
       condAgrupado[cfg.label] = (condAgrupado[cfg.label]||0) + 1;
     } else {
-      estadosDesconocidos.push({ nombre: al.nombre, estado: al.estado });
-      // Tratar estado desconocido como Trayectorias Continuas para no perderlo
       condAgrupado['Trayectorias Continuas'] = (condAgrupado['Trayectorias Continuas']||0) + 1;
     }
   });
-  if (estadosDesconocidos.length) console.warn('[Dashboard] Estados no reconocidos:', estadosDesconocidos);
   const condColors = {
     'Trayectorias Continuas': 'var(--accent2)',
     'Bajo PCP':               'var(--purple)',
@@ -1692,6 +1688,15 @@ async function deleteAlumno(id) {
     await sheetsDelete('Alumnos', id);
     DB.alumnos = DB.alumnos.filter(x=>x.id!==id);
     delete DB.seguimiento[id];
+    // Renumerar IDs localmente igual que en Sheets
+    const nuevoSeguimiento = {};
+    DB.alumnos.forEach((al, idx) => {
+      const oldId = al.id;
+      const newId = idx + 1;
+      if (DB.seguimiento[oldId]) nuevoSeguimiento[newId] = DB.seguimiento[oldId];
+      al.id = newId;
+    });
+    DB.seguimiento = nuevoSeguimiento;
     toast('Alumno eliminado de Sheets', 'error');
   } catch(err) { toast('Error: ' + err.message, 'error'); }
   setLoading(false);
