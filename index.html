@@ -116,7 +116,6 @@ tr:last-child td { border-bottom: none; }
 
 /* WEEK CELLS */
 .wc { display:inline-flex;align-items:center;justify-content:center;width:26px;height:26px;border-radius:6px;font-size:0.6rem;font-weight:700;font-family:var(--mono); }
-.wc-C{background:rgba(188,140,255,0.15);color:var(--purple);border:1px solid rgba(188,140,255,0.3)}
 .wc-NC{background:rgba(248,81,73,0.2);color:var(--red);border:1px solid rgba(248,81,73,0.4);animation:pulseRed 2s infinite}
 .wc-A{background:rgba(248,81,73,0.15);color:var(--red);border:1px solid rgba(248,81,73,0.3)}
 .wc-MB{background:rgba(63,185,80,0.18);color:var(--green);border:1px solid rgba(63,185,80,0.35)}
@@ -582,12 +581,11 @@ tr:last-child td { border-bottom: none; }
     <div class="page-header"><h1>Seguimiento Semanal de Alumnos</h1><p>Estado semana a semana por alumno</p></div>
   </div>
   <div class="legend-bar" style="flex-wrap:wrap;gap:8px">
-    <span class="leg"><span class="leg-dot" style="background:var(--purple)"></span>C – Con PCP</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--green)"></span>MB – Muy Buen Avance</span>
+    <span class="leg"><span class="leg-dot" style="background:var(--accent2)"></span>B – Buen avance</span>
+    <span class="leg"><span class="leg-dot" style="background:#c8a800;animation:pulseYellow 2s infinite;border-radius:50%"></span>R – Avance Regular</span>
     <span class="leg"><span class="leg-dot" style="background:var(--red)"></span>NC – Sin contacto</span>
     <span class="leg"><span class="leg-dot" style="background:var(--red)"></span>A – Abandonó</span>
-    <span class="leg"><span class="leg-dot" style="background:var(--green)"></span>MB – Muy Buen Avance</span>
-    <span class="leg"><span class="leg-dot" style="background:#c8a800;animation:pulseYellow 2s infinite;border-radius:50%"></span>R – Avance Regular</span>
-    <span class="leg"><span class="leg-dot" style="background:var(--accent2)"></span>B – Buen avance</span>
     <div style="margin-left:auto;display:flex;gap:6px">
       <button id="btn-sem1" class="btn btn-primary btn-sm" onclick="setSemestre(1)" style="font-size:0.72rem;padding:5px 12px">1er Semestre</button>
       <button id="btn-sem2" class="btn btn-sm" onclick="setSemestre(2)" style="font-size:0.72rem;padding:5px 12px;background:var(--surface2);border:1px solid var(--border);color:var(--muted)">2do Semestre</button>
@@ -1753,7 +1751,7 @@ function openSegModal(id) {
   const semFin  = semBase + 19;
   const segData = semestreActivo === 1 ? DB.seguimiento : DB.seguimiento2;
   const seg = segData[id] || {};
-  const cols = ['C','NC','A','MB','R','B'];
+  const cols = ['MB','B','R','NC','A'];
   let html = `<p style="font-size:0.82rem;margin-bottom:4px;font-weight:600">${a.nombre}</p>
     <p style="font-size:0.65rem;color:var(--muted);margin-bottom:14px;font-family:var(--mono)">${semestreActivo === 1 ? '1er Semestre · Sem 1–20' : '2do Semestre · Sem 21–40'}</p>`;
   for(let i=semBase; i<=semFin; i++) {
