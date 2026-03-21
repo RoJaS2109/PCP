@@ -2168,8 +2168,19 @@ function exportarJSON() {
 
 // ── RECARGAR DESDE SHEETS ──
 async function recargarDesdeSheets() {
-  await loadAllData();
-  renderDashboard();
+  setLoading(true, 'Recargando datos desde Sheets...');
+  const ok = await loadAllData();
+  if (!ok) return;
+  // Re-renderizar la sección activa
+  const secActiva = document.querySelector('.section.active');
+  if (secActiva) {
+    const id = secActiva.id.replace('s-', '');
+    if (id === 'dashboard')    renderDashboard();
+    else if (id === 'alumnos') renderAlumnos();
+    else if (id === 'seguimiento') renderSeguimiento();
+    else if (id === 'entregas')    renderEntregas();
+    else if (id === 'comunicaciones') renderComunicaciones();
+  }
   toast('Datos recargados desde Sheets ✓', 'success');
 }
 
