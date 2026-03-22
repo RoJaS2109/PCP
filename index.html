@@ -513,7 +513,7 @@ tr:last-child td { border-bottom: none; }
   <div class="header-row">
     <div class="page-header">
       <h1>⚡ Monitor Académico</h1>
-      <p>Electricidad en Inmuebles · CFP 401 · Ciclo 2026</p>
+      <p id="dash-subtitle">Cargando...</p>
     </div>
     <div style="display:flex;gap:8px;flex-wrap:wrap" id="dash-badges"></div>
   </div>
@@ -1178,14 +1178,31 @@ async function loadAllData() {
   const cfg = CURSOS_CONFIG[cursoId];
   setLoading(true, `Cargando datos del Curso N° ${cursoId}...`);
   try {
-    const [alumnos, seguRows, segRows2, entregas, comunicaciones] = await Promise.all([
+    const [alumnos, seguRows, segRows2, entregas, comunicaciones, infoCentro] = await Promise.all([
       sheetsGet('Alumnos'),
       sheetsGet('1er. Semestre'),
       sheetsGet('2do. Semestre'),
       sheetsGet('Entregas'),
-      sheetsGet('Comunicaciones')
+      sheetsGet('Comunicaciones'),
+      sheetsGet('Info_Centro')
     ]);
+
+    // Datos base del config (fallback)
     DB.curso = { ...cfg.info, nombre: cfg.nombre };
+
+    // Sobreescribir con datos dinámicos de la Sheet Info_Centro
+    if (infoCentro && infoCentro.length > 0) {
+      const info = infoCentro[0];
+      if (info.num_curso)     DB.curso.numero    = info.num_curso;
+      if (info.cfp)           DB.curso.cfp       = info.cfp;
+      if (info['nombre curso']) DB.curso.nombre  = info['nombre curso'];
+      if (info.duracion)      DB.curso.duracion  = info.duracion;
+      if (info.inicio)        DB.curso.inicio    = isoToDMY(String(info.inicio));
+      if (info.final)         DB.curso.fin       = isoToDMY(String(info.final));
+      if (info.horario)       DB.curso.horarios  = info.horario;
+      if (info.direccion)     DB.curso.lugar     = info.direccion;
+    }
+
     DB.alumnos = alumnos.map(a => ({ ...a, id: parseInt(a.id) || a.id, nacimiento: isoToDMY(a.nacimiento) }));
     DB.seguimiento  = parseSeguimiento(seguRows,  1);
     DB.seguimiento2 = parseSeguimiento(segRows2, 21);
@@ -1372,6 +1389,11 @@ function donutHTML(segments, centerVal, centerLbl, legendItems) {
 
 function renderDashboard() {
   const c = DB.curso; const a = DB.alumnos; const e = DB.entregas;
+  const cfg = CURSOS_CONFIG[AUTH.cursoId || '3004'];
+
+  // Subtítulo dinámico
+  const subtitulo = document.getElementById('dash-subtitle');
+  if (subtitulo) subtitulo.textContent = `${c.nombre} · CFP ${c.cfp} · Ciclo ${new Date().getFullYear()}`;
 
   // Badges
   document.getElementById('dash-badges').innerHTML = `
@@ -1381,7 +1403,7 @@ function renderDashboard() {
 
   // Curso info
   document.getElementById('curso-info-cards').innerHTML = `
-    <div class="ci-item"><div class="ci-label">Especialidad</div><div class="ci-val">⚡ ${c.nombre}</div></div>
+    <div class="ci-item"><div class="ci-label">Especialidad</div><div class="ci-val">${cfg.icono} ${c.nombre}</div></div>
     <div class="ci-item"><div class="ci-label">Instructor</div><div class="ci-val">${c.instructor}</div></div>
     <div class="ci-item"><div class="ci-label">Horarios</div><div class="ci-val">${c.horarios}</div></div>
     <div class="ci-item"><div class="ci-label">Duración</div><div class="ci-val">${c.duracion} hs cátedra</div></div>
