@@ -1208,7 +1208,7 @@ async function loadAllData() {
     DB.seguimiento2 = parseSeguimiento(segRows2, 21);
     DB.entregas = entregas.map(e => ({ ...e, id: parseInt(e.id)||e.id, calificacion: parseInt(e.calificacion)||0, practica: parseInt(e.practica)||0 }));
     DB.comunicaciones = comunicaciones.map(c => ({ ...c, id: parseInt(c.id)||c.id }));
-    setConn('connected', `✓ Curso ${cursoId}<br>${DB.alumnos.length} alumnos`);
+    setConn('connected', `✓ Curso ${cursoId}<br>${DB.curso.nombre || cursoId} · ${DB.alumnos.length} alumnos`);
     setLoading(false);
     return true;
   } catch(err) {
