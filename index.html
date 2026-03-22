@@ -1208,7 +1208,7 @@ async function loadAllData() {
     DB.seguimiento2 = parseSeguimiento(segRows2, 21);
     DB.entregas = entregas.map(e => ({ ...e, id: parseInt(e.id)||e.id, calificacion: parseInt(e.calificacion)||0, practica: parseInt(e.practica)||0 }));
     DB.comunicaciones = comunicaciones.map(c => ({ ...c, id: parseInt(c.id)||c.id }));
-    setConn('connected', `✓ Curso ${cursoId}<br>${DB.curso.nombre || cursoId} · ${DB.alumnos.length} alumnos`);
+    setConn('connected', `✓ Conectado<br>✓ ${DB.alumnos.length} alumnos`);
     setLoading(false);
     return true;
   } catch(err) {
@@ -1329,6 +1329,8 @@ function canalPill(c) {
 }
 function fmtDate(d) {
   if (!d || d === 'undefined' || d === '') return '—';
+  // Ya viene como DD/MM/AAAA (resultado de isoToDMY)
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(String(d))) return d;
   // Si ya viene como YYYY-MM-DD
   if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
     const p = d.split('-');
