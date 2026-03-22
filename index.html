@@ -438,7 +438,7 @@ tr:last-child td { border-bottom: none; }
   <div class="sidebar-logo">
     <div class="bolt">⚡</div>
     <h2>Gestión Académica · FP</h2>
-    <span>CFP N° 401 · 2026</span>
+    <span id="sidebar-cfp-info">CFP N° 401 · 2026</span>
   </div>
   <nav class="nav">
     <!-- User chip -->
@@ -1228,10 +1228,16 @@ async function initApp(cursoId) {
       badge.innerHTML = '<span class="pill p-orange" style="margin:4px 10px 8px;display:block;text-align:center">👁 Modo Visor</span>';
       document.querySelector('.nav').prepend(badge);
     }
-    // Actualizar sidebar footer con el curso activo
+    // Actualizar sidebar con datos dinámicos de DB.curso
     const cfg = CURSOS_CONFIG[AUTH.cursoId || '3004'];
-    document.getElementById('footer-curso-nombre').textContent = `${cfg.icono} ${cfg.nombre}`;
-    document.getElementById('footer-curso-num').textContent = `Curso N° ${AUTH.cursoId} · 2026–2027`;
+    const c = DB.curso;
+    // Header: CFP N° X · AÑO
+    const anioCiclo = c.inicio ? c.inicio.split('/')[2] || c.inicio.split('-')[0] : new Date().getFullYear();
+    document.getElementById('sidebar-cfp-info').textContent = `CFP N° ${c.cfp} · ${anioCiclo}`;
+    // Footer: icono + nombre del curso y período
+    document.getElementById('footer-curso-nombre').textContent = `${cfg.icono} ${c.nombre}`;
+    const finAnio = c.fin ? c.fin.split('/')[2] || c.fin.split('-')[0] : '';
+    document.getElementById('footer-curso-num').textContent = `Curso N° ${c.numero} · ${anioCiclo}–${finAnio}`;
   }
 }
 
