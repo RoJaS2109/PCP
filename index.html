@@ -399,7 +399,7 @@ tr:last-child td { border-bottom: none; }
   <div class="login-box">
     <span class="bolt">⚡</span>
     <h2>Gestión Académica · FP</h2>
-    <p class="login-sub">CFP N° 401 · Sistema de Seguimiento Académico<br>Iniciá sesión con tu cuenta Google institucional</p>
+    <p class="login-sub">Sistema de Seguimiento Académico<br>Iniciá sesión con tu cuenta Google institucional</p>
 
     <!-- Paso 1: Botón Google -->
     <div id="login-step-google">
@@ -1000,16 +1000,38 @@ function mostrarSelectorCursos(disponibles) {
     img.style.display = 'block';
   }
 
-  // Generar cards de cursos
-  document.getElementById('curso-cards-list').innerHTML = disponibles.map(c => `
-    <div class="curso-card" onclick="seleccionarCurso('${c.id}')">
-      <div>
-        <div class="curso-num">Curso N° ${c.id}</div>
-        <div class="curso-name">${c.icono} ${c.nombre}</div>
-        <div style="font-size:0.62rem;color:var(--muted);margin-top:2px;font-family:var(--mono)">${c.rol === 'instructor' ? '✏️ Instructor' : '👁 Visor'}</div>
-      </div>
-      <span class="curso-arrow">→</span>
-    </div>`).join('');
+  // Generar cards con datos base primero
+  const renderCards = (infos) => {
+    document.getElementById('curso-cards-list').innerHTML = disponibles.map(c => {
+      const info = infos[c.id];
+      const numCurso = info ? info.num_curso || c.id : c.id;
+      const nombre   = info ? info['nombre curso'] || c.nombre : c.nombre;
+      return `
+      <div class="curso-card" onclick="seleccionarCurso('${c.id}')">
+        <div>
+          <div class="curso-num">Curso N° ${numCurso}</div>
+          <div class="curso-name">${c.icono} ${nombre}</div>
+          <div style="font-size:0.62rem;color:var(--muted);margin-top:2px;font-family:var(--mono)">${c.rol === 'instructor' ? '✏️ Instructor' : '👁 Visor'}</div>
+        </div>
+        <span class="curso-arrow">→</span>
+      </div>`;
+    }).join('');
+  };
+
+  // Mostrar cards inmediatamente con datos base
+  renderCards({});
+
+  // Pre-cargar Info_Centro de cada curso en paralelo y actualizar
+  const precargas = disponibles.map(c =>
+    sheetsGetCurso('Info_Centro', c.id)
+      .then(rows => ({ id: c.id, info: rows && rows.length ? rows[0] : null }))
+      .catch(() => ({ id: c.id, info: null }))
+  );
+  Promise.all(precargas).then(resultados => {
+    const infos = {};
+    resultados.forEach(r => { if (r.info) infos[r.id] = r.info; });
+    renderCards(infos);
+  });
 }
 
 function seleccionarCurso(cursoId) {
@@ -1108,6 +1130,16 @@ function mostrarLoginError(msg) {
 // ════════════════════════════════════════════════════════
 async function sheetsGet(sheet) {
   const cursoId = AUTH.cursoId || '3004';
+  const res = await fetch(SCRIPT_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'getAll', sheet, curso: cursoId, userEmail: AUTH.user ? AUTH.user.email : '' })
+  });
+  const json = await res.json();
+  if (!json.ok) throw new Error(json.error);
+  return json.data;
+}
+
+async function sheetsGetCurso(sheet, cursoId) {
   const res = await fetch(SCRIPT_URL, {
     method: 'POST',
     body: JSON.stringify({ action: 'getAll', sheet, curso: cursoId, userEmail: AUTH.user ? AUTH.user.email : '' })
