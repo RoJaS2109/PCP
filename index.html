@@ -819,6 +819,13 @@ tr:last-child td { border-bottom: none; }
 <div class="overlay" id="modal-seg">
   <div class="modal" style="max-width:400px">
     <h3>Editar Seguimiento</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px;padding:10px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)">
+      <span class="leg"><span class="leg-dot" style="background:var(--green)"></span><span style="font-size:0.65rem;color:var(--muted)">MB – Muy Buen Avance</span></span>
+      <span class="leg"><span class="leg-dot" style="background:var(--accent2)"></span><span style="font-size:0.65rem;color:var(--muted)">B – Buen avance</span></span>
+      <span class="leg"><span class="leg-dot" style="background:#c8a800"></span><span style="font-size:0.65rem;color:var(--muted)">R – Avance Regular</span></span>
+      <span class="leg"><span class="leg-dot" style="background:var(--red)"></span><span style="font-size:0.65rem;color:var(--muted)">NC – Sin contacto</span></span>
+      <span class="leg"><span class="leg-dot" style="background:var(--red)"></span><span style="font-size:0.65rem;color:var(--muted)">A – Abandonó</span></span>
+    </div>
     <div id="modal-seg-body"></div>
     <div class="modal-btns">
       <button class="btn btn-ghost" onclick="closeModal('modal-seg')">Cancelar</button>
