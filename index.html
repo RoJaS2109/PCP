@@ -557,7 +557,7 @@ tr:last-child td { border-bottom: none; }
 <!-- ═══════════════════════════════════════════════ ALUMNOS -->
 <div class="section" id="s-alumnos">
   <div class="header-row">
-    <div class="page-header"><h1>Alumnos</h1><p>Registro completo del curso 3004</p></div>
+    <div class="page-header"><h1>Alumnos</h1><p id="alumnos-subtitle">Registro completo del curso</p></div>
     <button class="btn btn-primary write-only" onclick="nav('nuevo-alumno',null)">+ Nuevo Alumno</button>
   </div>
   <div class="search-bar"><span>🔍</span><input type="text" id="search-alumnos" placeholder="Buscar por nombre, DNI, teléfono..." oninput="renderAlumnos()"></div>
@@ -631,7 +631,7 @@ tr:last-child td { border-bottom: none; }
 
 <!-- ═══════════════════════════════════════════════ NUEVO ALUMNO -->
 <div class="section" id="s-nuevo-alumno">
-  <div class="page-header"><h1 id="form-alumno-title">Nuevo Alumno</h1><p>Registrar en el curso 3004</p></div>
+  <div class="page-header"><h1 id="form-alumno-title">Nuevo Alumno</h1><p id="form-alumno-subtitle">Registrar en el curso</p></div>
   <div class="card" style="max-width:600px">
     <form onsubmit="submitAlumno(event)">
       <input type="hidden" id="edit-alumno-id">
@@ -757,26 +757,13 @@ tr:last-child td { border-bottom: none; }
   <div class="modal" style="max-width:560px">
     <h3>⬆️ Importar datos a Google Sheets</h3>
     <p style="font-size:0.78rem;color:var(--muted);margin-bottom:18px;line-height:1.6">
-      Cargá un archivo <strong>.json</strong> exportado desde esta webapp, o usá los <strong>datos semilla</strong> (los 38 alumnos originales del curso 3004).
+      Cargá un archivo <strong>.json</strong> exportado desde esta webapp.
       Los registros existentes en Sheets serán actualizados si comparten el mismo ID.
     </p>
 
     <!-- Opciones -->
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:20px">
-      <!-- Opción A: semilla -->
-      <div class="ci-item" style="cursor:pointer;transition:border-color 0.2s" id="import-opt-seed"
-           onclick="selectImportOpt('seed')"
-           style="border:1px solid var(--border);border-radius:10px;padding:14px 16px">
-        <div style="display:flex;align-items:center;gap:10px">
-          <span style="font-size:1.4rem">🌱</span>
-          <div>
-            <div style="font-size:0.82rem;font-weight:600">Datos semilla — Curso 3004</div>
-            <div style="font-size:0.7rem;color:var(--muted)">38 alumnos + entregas + comunicaciones originales</div>
-          </div>
-          <span class="pill p-green" style="margin-left:auto">Recomendado</span>
-        </div>
-      </div>
-      <!-- Opción B: archivo JSON -->
+      <!-- Archivo JSON -->
       <div class="ci-item" id="import-opt-file"
            style="cursor:pointer;transition:border-color 0.2s"
            onclick="document.getElementById('import-file-input').click()">
@@ -1260,6 +1247,13 @@ async function initApp(cursoId) {
       badge.innerHTML = '<span class="pill p-orange" style="margin:4px 10px 8px;display:block;text-align:center">👁 Modo Visor</span>';
       document.querySelector('.nav').prepend(badge);
     }
+    // Actualizar subtítulos con número de curso dinámico
+    const numCurso = DB.curso.numero || AUTH.cursoId;
+    const elAlumnosSub = document.getElementById('alumnos-subtitle');
+    const elFormSub = document.getElementById('form-alumno-subtitle');
+    if (elAlumnosSub) elAlumnosSub.textContent = `Registro completo del curso ${numCurso}`;
+    if (elFormSub) elFormSub.textContent = `Registrar en el curso ${numCurso}`;
+
     // Actualizar sidebar con datos dinámicos de DB.curso
     const cfg = CURSOS_CONFIG[AUTH.cursoId || '3004'];
     const c = DB.curso;
@@ -2082,7 +2076,6 @@ function toast(msg, type='success') {
 // ════════════════════════════════════════════════════════
 
 // Los datos semilla completos para importar
-const SEED_DATA = {"alumnos":[{"id":1,"nombre":"Altamirano, Lautaro","gen":"M","dni":"50840017","tel":"1173621940","email":"","fechaActivacion":"2026-03-03","motivoActivacion":"Enfermedad","tipoAusencia":"Alumno","cronograma":"Si","estado":"Con PCP","ultimoContacto":"2026-03-03","proximaTutoria":"2026-03-17","observaciones":"no tiene acceso a internet, se envían guías impresas"},{"id":2,"nombre":"Altamirano, Pablo","gen":"M","dni":"26100538","tel":"2914046024","email":"","fechaActivacion":"2026-03-03","motivoActivacion":"Razones laborales","tipoAusencia":"Alumno","cronograma":"Si","estado":"Reincorporado","ultimoContacto":"2026-03-03","proximaTutoria":"2026-03-17","observaciones":"no tiene acceso a internet, se envían guías impresas"},{"id":3,"nombre":"Baruta Alvarez, Cristian Agustin","gen":"M","dni":"44882079","tel":"2915006917","email":"","fechaActivacion":"2026-03-03","motivoActivacion":"Razones laborales","tipoAusencia":"Alumno","cronograma":"Si","estado":"Con PCP","ultimoContacto":"2026-03-03","proximaTutoria":"2026-03-17","observaciones":"no tiene acceso a internet, se envían guías impresas"},{"id":4,"nombre":"Blanco, Mauro","gen":"X","dni":"","tel":"2932400446","email":"","fechaActivacion":"2026-03-03","motivoActivacion":"Enfermedad","tipoAusencia":"Alumno","cronograma":"Si","estado":"Abandonó","ultimoContacto":"2026-03-03","proximaTutoria":"2026-03-17","observaciones":"no tiene acceso a internet, se envían guías impresas"},{"id":5,"nombre":"Canullan, Ruben Hector","gen":"X","dni":"27056146","tel":"2914321023","email":"","fechaActivacion":"2026-03-03","motivoActivacion":"Emergencia familiar","tipoAusencia":"Alumno","cronograma":"Si","estado":"Reincorporado","ultimoContacto":"2026-03-03","proximaTutoria":"2026-03-17","observaciones":"no tiene acceso a internet, se envían guías impresas"},{"id":6,"nombre":"Colmegna, Angel Dario","gen":"X","dni":"33717531","tel":"2915204999","email":"","fechaActivacion":"2026-03-07","motivoActivacion":"Razones laborales","tipoAusencia":"Alumno","cronograma":"Si","estado":"Con PCP","ultimoContacto":"2026-03-03","proximaTutoria":"2026-03-17","observaciones":"no tiene acceso a internet, se envían guías impresas"},{"id":7,"nombre":"Contreras, Rodolfo Darío","gen":"X","dni":"17021916","tel":"2915011806","email":"","fechaActivacion":"2026-03-08","motivoActivacion":"Razones laborales","tipoAusencia":"Alumno","cronograma":"Si","estado":"Abandonó","ultimoContacto":"2026-03-03","proximaTutoria":"2026-03-17","observaciones":"no tiene acceso a internet, se envían guías impresas"},{"id":8,"nombre":"Corezzola, Pablo Gabriel","gen":"X","dni":"32228981","tel":"2915277604","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":9,"nombre":"Diaz, Julian Alberto","gen":"X","dni":"46813312","tel":"2914718243","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":10,"nombre":"Flores, Fabrizio Leandro","gen":"M","dni":"47117505","tel":"2915717587","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":11,"nombre":"Flores, Pablo Enrique","gen":"M","dni":"23595050","tel":"2915073466","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":12,"nombre":"Gamarra, Rodrigo","gen":"M","dni":"42737844","tel":"2915238513","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":13,"nombre":"Gomez, Sergio","gen":"M","dni":"24429442","tel":"2914461083","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":14,"nombre":"Goñi, Rodrigo Sebastian","gen":"M","dni":"26645552","tel":"2915115300","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":15,"nombre":"Haag, Braian German","gen":"M","dni":"28372087","tel":"3515056323","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":16,"nombre":"Jara, Gabriel Agustin","gen":"M","dni":"48106548","tel":"2915351700","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":17,"nombre":"Lepun, Oscar Osvaldo","gen":"M","dni":"18630215","tel":"2915078957","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":18,"nombre":"López, Emanuel Ivan","gen":"M","dni":"38320594","tel":"2915014453","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":19,"nombre":"Maccia, Juan Carlos","gen":"M","dni":"25576918","tel":"2914163323","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":20,"nombre":"Maulen, Carlos Ivan","gen":"M","dni":"48257079","tel":"2914644616","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":21,"nombre":"Monzón, Martin Alberto","gen":"M","dni":"","tel":"2915276528","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":22,"nombre":"Morales, Ivan","gen":"M","dni":"13671911","tel":"2984870576","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":23,"nombre":"Niz, Jonatan","gen":"M","dni":"33912564","tel":"1130212788","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":24,"nombre":"Pueblos, Adrián","gen":"M","dni":"23574471","tel":"2915237441","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":25,"nombre":"Rodriguez, Alejandro Emanuel","gen":"M","dni":"28501169","tel":"2914461781","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":26,"nombre":"Rolando Barros, Pablo Alberto","gen":"M","dni":"20568332","tel":"2914491616","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":27,"nombre":"Roldan Vroiza, Marcelo Ignacio","gen":"M","dni":"46114586","tel":"2914316840","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":28,"nombre":"Romero, Leonardo Yoel","gen":"M","dni":"35909233","tel":"1167995319","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":29,"nombre":"Rosales, Luis Sebastian","gen":"M","dni":"29510440","tel":"2915111202","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":30,"nombre":"Salazar, Ariel","gen":"M","dni":"20757435","tel":"2914672075","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":31,"nombre":"Salazar, Tiago Santino","gen":"M","dni":"46939167","tel":"2914657673","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":32,"nombre":"Salazar, Tomás","gen":"M","dni":"20903315","tel":"2194229479","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":33,"nombre":"Vazquez, Cesar Daniel","gen":"M","dni":"25777900","tel":"2914629672","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":34,"nombre":"Villanueva, Cesar Omar","gen":"M","dni":"29851970","tel":"2914628489","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":35,"nombre":"Sosa, Ana","gen":"F","dni":"","tel":"2914636875","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":36,"nombre":"Pérez, Laura","gen":"F","dni":"","tel":"2914425831","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":37,"nombre":"Torres, Belgica","gen":"F","dni":"","tel":"2915036110","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""},{"id":38,"nombre":"García, Maria Sol","gen":"F","dni":"","tel":"2915035777","email":"","fechaActivacion":"","motivoActivacion":"Alumno Regular","tipoAusencia":"","cronograma":"","estado":"Regular","ultimoContacto":"","proximaTutoria":"","observaciones":""}],"seguimiento":[{"id":1,"nombre":"Altamirano, Lautaro","sem1":"C"},{"id":2,"nombre":"Altamirano, Pablo","sem1":"C"},{"id":3,"nombre":"Baruta Alvarez, Cristian Agustin","sem1":"B"},{"id":4,"nombre":"Blanco, Mauro","sem1":"P"},{"id":5,"nombre":"Canullan, Ruben Hector","sem1":"V"},{"id":6,"nombre":"Colmegna, Angel Dario","sem1":"NC"},{"id":7,"nombre":"Contreras, Rodolfo Darío","sem1":"A"},{"id":10,"nombre":"Flores, Fabrizio Leandro","sem1":"NC"},{"id":11,"nombre":"Flores, Pablo Enrique","sem1":"NC"},{"id":13,"nombre":"Gomez, Sergio","sem1":"NC"}],"entregas":[{"id":1,"nombre":"Altamirano, Lautaro","modulo":"Módulo 1","practica":3,"fechaLimite":"2026-04-01","fechaEntrega":"2026-03-07","entrego":"Si","calificacion":100,"feedback":"Si","tipoEval":"Cuestionario online","observaciones":"tuvo dificultades con el conexionado"},{"id":2,"nombre":"Altamirano, Pablo","modulo":"Módulo 1","practica":3,"fechaLimite":"2026-04-01","fechaEntrega":"2026-03-08","entrego":"Si","calificacion":90,"feedback":"Si","tipoEval":"Teórico/Práctica","observaciones":""},{"id":3,"nombre":"Baruta Alvarez, Cristian Agustin","modulo":"Módulo 1","practica":3,"fechaLimite":"2026-04-01","fechaEntrega":"2026-03-09","entrego":"Si","calificacion":70,"feedback":"Si","tipoEval":"Cuestionario online","observaciones":""},{"id":4,"nombre":"Blanco, Mauro","modulo":"Módulo 1","practica":3,"fechaLimite":"2026-04-01","fechaEntrega":"2026-03-10","entrego":"Si","calificacion":80,"feedback":"Si","tipoEval":"Teórico/Práctica","observaciones":""},{"id":5,"nombre":"Canullan, Ruben Hector","modulo":"Módulo 1","practica":3,"fechaLimite":"2026-04-01","fechaEntrega":"2026-03-11","entrego":"Si","calificacion":80,"feedback":"Si","tipoEval":"Teórico/Práctica","observaciones":""}],"comunicaciones":[{"id":1,"nombre":"Altamirano, Lautaro","fecha":"","canal":"WhatsApp","tipoContacto":"Chispa","resumen":"resolvió dudas sobre el cálculo de sección.","requiereSeguimiento":"No","proximaAccion":"revisar práctica 3","registradoPor":"Instructor"},{"id":2,"nombre":"Altamirano, Pablo","fecha":"","canal":"Classroom","tipoContacto":"Tutoría programada","resumen":"resolvió dudas sobre el cálculo de sección.","requiereSeguimiento":"No","proximaAccion":"revisar práctica 1","registradoPor":"Instructor"}]};
 
 let importData = null;
 let importOpt = 'seed'; // 'seed' o 'file'
@@ -2094,24 +2087,15 @@ function openImport() {
   document.getElementById('import-preview').style.display = 'none';
   document.getElementById('import-progress').style.display = 'none';
   document.getElementById('import-file-name').textContent = 'Ningún archivo seleccionado';
-  document.getElementById('import-run-btn').disabled = false;
+  document.getElementById('import-run-btn').disabled = true;
   document.getElementById('import-cancel-btn').textContent = 'Cancelar';
-  // Auto-select seed
-  selectImportOpt('seed');
   openModal('modal-import');
 }
 
 function selectImportOpt(opt) {
   importOpt = opt;
-  const seedEl = document.getElementById('import-opt-seed');
   const fileEl = document.getElementById('import-opt-file');
-  seedEl.style.border = opt === 'seed' ? '2px solid var(--accent)' : '1px solid var(--border)';
-  fileEl.style.border = opt === 'file' ? '2px solid var(--accent)' : '1px solid var(--border)';
-  if (opt === 'seed') {
-    importData = SEED_DATA;
-    showImportPreview(SEED_DATA);
-    document.getElementById('import-run-btn').disabled = false;
-  }
+  if (fileEl) fileEl.style.border = '2px solid var(--accent)';
 }
 
 function onImportFileSelected(event) {
