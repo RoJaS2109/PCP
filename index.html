@@ -1231,6 +1231,9 @@ async function initApp(cursoId) {
     // Actualizar sidebar con datos dinámicos de DB.curso
     const cfg = CURSOS_CONFIG[AUTH.cursoId || '3004'];
     const c = DB.curso;
+    // Chip dorado — actualizar con nombre dinámico
+    document.getElementById('sidebar-curso-num').textContent = `Curso N° ${c.numero}`;
+    document.getElementById('sidebar-curso-nombre').textContent = `${cfg.icono} ${c.nombre}`;
     // Header: CFP N° X · AÑO
     const anioCiclo = c.inicio ? c.inicio.split('/')[2] || c.inicio.split('-')[0] : new Date().getFullYear();
     document.getElementById('sidebar-cfp-info').textContent = `CFP N° ${c.cfp} · ${anioCiclo}`;
